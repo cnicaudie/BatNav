@@ -3,7 +3,7 @@ project(BatNav)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(BatNavProject main.cpp Engine/Game.cpp Engine/Game.h)
+add_executable(BatNavProject main.cpp Engine/Game.cpp Engine/Game.h Engine/EngineIncludes.h Gameplay/GameManager.cpp Gameplay/GameManager.h)
 
 find_package(SFML 2.5 COMPONENTS system window graphics network audio REQUIRED)
 include_directories(${SFML_INCLUDE_DIRS})

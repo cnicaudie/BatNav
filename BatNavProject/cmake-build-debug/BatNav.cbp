@@ -80,10 +80,19 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/EngineIncludes.h">
+			<Option target="BatNavProject"/>
+		</Unit>
 		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Game.cpp">
 			<Option target="BatNavProject"/>
 		</Unit>
 		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Game.h">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameManager.cpp">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameManager.h">
 			<Option target="BatNavProject"/>
 		</Unit>
 		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/main.cpp">
