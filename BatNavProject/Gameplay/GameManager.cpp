@@ -3,6 +3,7 @@
 //
 
 #include "GameManager.h"
+#include "GameplayIncludes.h"
 
 namespace BatNav
 {
@@ -32,6 +33,11 @@ namespace BatNav
             m_Shape.setFillColor(sf::Color::Cyan);
 
             m_BoardA.LoadBoard();
+
+            // Center the view
+            sf::View gameView;
+            gameView.setViewport(sf::FloatRect(0.25f, 0.25, 1.5f, 1.5f));
+            m_Window.setView(gameView);
         }
 
         GameManager::~GameManager()

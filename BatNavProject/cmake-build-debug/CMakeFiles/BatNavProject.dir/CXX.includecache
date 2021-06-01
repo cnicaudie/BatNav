@@ -22,19 +22,17 @@ EngineIncludes.h
 iostream
 -
 
-/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/Board/Board.cpp
-Board.h
-/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/Board/Board.h
-../GameManager.h
-/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameManager.h
-../GameplayIncludes.h
-/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameplayIncludes.h
-
 /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/Board/Board.h
 vector
 -
 SFML/Graphics.hpp
 -
+
+/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameManager.cpp
+GameManager.h
+/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameManager.h
+GameplayIncludes.h
+/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameplayIncludes.h
 
 /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameManager.h
 ../Engine/Game.h

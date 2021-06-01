@@ -198,9 +198,11 @@ CMakeFiles/BatNavProject.dir/Gameplay/Board/Board.cpp.o
 CMakeFiles/BatNavProject.dir/Gameplay/GameManager.cpp.o
  /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/EngineIncludes.h
  /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Game.h
+ /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Log.h
  /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/Board/Board.h
  /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameManager.cpp
  /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameManager.h
+ /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/GameplayIncludes.h
  /usr/local/include/SFML/Audio.hpp
  /usr/local/include/SFML/Audio/AlResource.hpp
  /usr/local/include/SFML/Audio/Export.hpp
