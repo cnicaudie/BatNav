@@ -5,6 +5,7 @@
 #pragma once
 
 #include "../Engine/Game.h"
+#include "./Board/Board.h"
 
 namespace BatNav
 {
@@ -38,6 +39,10 @@ namespace BatNav
                 PLAYING     = 1,
                 OVER        = 2
             } m_CurrentState;
+
+            bool m_IsPlayerATurn;
+            Board m_BoardA;
+            Board m_BoardB;
 
             sf::CircleShape m_Shape; // Test shape
         };

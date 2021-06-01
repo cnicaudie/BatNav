@@ -23,10 +23,15 @@ namespace BatNav
         GameManager::GameManager()
                 : Game{ "BatNav (WIP)" }
                 , m_CurrentState(GameState::NOT_STARTED)
+                , m_IsPlayerATurn(true)
+                , m_BoardA()
+                , m_BoardB()
         {
             m_Shape.setRadius(40.f);
             m_Shape.setPosition(100.f, 100.f);
             m_Shape.setFillColor(sf::Color::Cyan);
+
+            m_BoardA.LoadBoard();
         }
 
         GameManager::~GameManager()
@@ -43,6 +48,10 @@ namespace BatNav
         {
             target.clear(sf::Color(0, 0, 0));
             target.draw(m_Shape);
+
+            m_IsPlayerATurn
+                ? target.draw(m_BoardA)
+                : target.draw(m_BoardB);
         }
     }
 }

@@ -170,6 +170,33 @@ Engine/Game.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Game.cpp.s
 .PHONY : Engine/Game.cpp.s
 
+Gameplay/Board/Board.o: Gameplay/Board/Board.cpp.o
+
+.PHONY : Gameplay/Board/Board.o
+
+# target to build an object file
+Gameplay/Board/Board.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Gameplay/Board/Board.cpp.o
+.PHONY : Gameplay/Board/Board.cpp.o
+
+Gameplay/Board/Board.i: Gameplay/Board/Board.cpp.i
+
+.PHONY : Gameplay/Board/Board.i
+
+# target to preprocess a source file
+Gameplay/Board/Board.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Gameplay/Board/Board.cpp.i
+.PHONY : Gameplay/Board/Board.cpp.i
+
+Gameplay/Board/Board.s: Gameplay/Board/Board.cpp.s
+
+.PHONY : Gameplay/Board/Board.s
+
+# target to generate assembly for a file
+Gameplay/Board/Board.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Gameplay/Board/Board.cpp.s
+.PHONY : Gameplay/Board/Board.cpp.s
+
 Gameplay/GameManager.o: Gameplay/GameManager.cpp.o
 
 .PHONY : Gameplay/GameManager.o
@@ -236,6 +263,9 @@ help:
 	@echo "... Engine/Game.o"
 	@echo "... Engine/Game.i"
 	@echo "... Engine/Game.s"
+	@echo "... Gameplay/Board/Board.o"
+	@echo "... Gameplay/Board/Board.i"
+	@echo "... Gameplay/Board/Board.s"
 	@echo "... Gameplay/GameManager.o"
 	@echo "... Gameplay/GameManager.i"
 	@echo "... Gameplay/GameManager.s"
