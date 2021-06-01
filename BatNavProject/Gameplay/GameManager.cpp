@@ -48,6 +48,7 @@ namespace BatNav
 
         void GameManager::Update(float deltaTime)
         {
+            m_InputManager->UpdateMousePosition(m_Window);
         }
 
         void GameManager::Render(sf::RenderTarget& target)

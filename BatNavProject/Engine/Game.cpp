@@ -13,6 +13,7 @@ namespace BatNav
 
         Game::Game(const char* windowTitle)
                 : m_Window{ sf::VideoMode(APP_INIT_WINDOW_SIZE.x, APP_INIT_WINDOW_SIZE.y), windowTitle, sf::Style::Titlebar | sf::Style::Close }
+                , m_InputManager{ std::make_shared<InputManager>() }
         {
             m_Window.setVerticalSyncEnabled(true);
             m_Window.setFramerateLimit(static_cast<uint32_t>(APP_MAX_FRAMERATE));
@@ -37,6 +38,8 @@ namespace BatNav
                 sf::Event event;
                 while (m_Window.pollEvent(event))
                 {
+                    m_InputManager->ManageInputEvents(event);
+
                     switch (event.type)
                     {
                         case sf::Event::Closed:

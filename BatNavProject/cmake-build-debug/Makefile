@@ -170,6 +170,33 @@ Engine/Game.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Game.cpp.s
 .PHONY : Engine/Game.cpp.s
 
+Engine/Input/InputManager.o: Engine/Input/InputManager.cpp.o
+
+.PHONY : Engine/Input/InputManager.o
+
+# target to build an object file
+Engine/Input/InputManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Input/InputManager.cpp.o
+.PHONY : Engine/Input/InputManager.cpp.o
+
+Engine/Input/InputManager.i: Engine/Input/InputManager.cpp.i
+
+.PHONY : Engine/Input/InputManager.i
+
+# target to preprocess a source file
+Engine/Input/InputManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Input/InputManager.cpp.i
+.PHONY : Engine/Input/InputManager.cpp.i
+
+Engine/Input/InputManager.s: Engine/Input/InputManager.cpp.s
+
+.PHONY : Engine/Input/InputManager.s
+
+# target to generate assembly for a file
+Engine/Input/InputManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Input/InputManager.cpp.s
+.PHONY : Engine/Input/InputManager.cpp.s
+
 Gameplay/Board/Board.o: Gameplay/Board/Board.cpp.o
 
 .PHONY : Gameplay/Board/Board.o
@@ -263,6 +290,9 @@ help:
 	@echo "... Engine/Game.o"
 	@echo "... Engine/Game.i"
 	@echo "... Engine/Game.s"
+	@echo "... Engine/Input/InputManager.o"
+	@echo "... Engine/Input/InputManager.i"
+	@echo "... Engine/Input/InputManager.s"
 	@echo "... Gameplay/Board/Board.o"
 	@echo "... Gameplay/Board/Board.i"
 	@echo "... Gameplay/Board/Board.s"

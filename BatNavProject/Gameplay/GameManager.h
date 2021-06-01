@@ -19,9 +19,7 @@ namespace BatNav
             void operator=(const GameManager& gameManager) = delete;
 
             void Update(float deltaTime) override;
-            //void UpdateGUI(float deltaTime) override;
             void Render(sf::RenderTarget& target) override;
-            //void RenderGUI(sf::RenderTarget& target) override;
 
             inline const bool IsGameOver() const { return m_CurrentState == GameState::OVER; }
 

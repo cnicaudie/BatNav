@@ -2,6 +2,7 @@ file(REMOVE_RECURSE
   "BatNavProject"
   "BatNavProject.pdb"
   "CMakeFiles/BatNavProject.dir/Engine/Game.cpp.o"
+  "CMakeFiles/BatNavProject.dir/Engine/Input/InputManager.cpp.o"
   "CMakeFiles/BatNavProject.dir/Gameplay/Board/Board.cpp.o"
   "CMakeFiles/BatNavProject.dir/Gameplay/GameManager.cpp.o"
   "CMakeFiles/BatNavProject.dir/main.cpp.o"

@@ -89,7 +89,13 @@
 		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Game.h">
 			<Option target="BatNavProject"/>
 		</Unit>
-		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Log.h">
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Input/InputManager.cpp">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Input/InputManager.h">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Log/Log.h">
 			<Option target="BatNavProject"/>
 		</Unit>
 		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Gameplay/Board/Board.cpp">
