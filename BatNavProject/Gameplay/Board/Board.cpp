@@ -2,9 +2,10 @@
 // Created by Charlotte Nicaudie on 01/06/2021.
 //
 
+#include <cmath>
 #include "Board.h"
-#include "../GameManager.h"
 #include "../GameplayIncludes.h"
+#include "../../Engine/Event/EventTypes/ClickEvent.h"
 
 namespace BatNav
 {
@@ -13,14 +14,26 @@ namespace BatNav
         static const sf::Vector2u BOARD_SIZE { 10, 10 };
         static const sf::Vector2u TILE_SIZE { 32, 32 };
 
-        Board::Board()
+        Board::Board(const bool isCurrent)
             : m_Board(BOARD_SIZE.x * BOARD_SIZE.y, 0)
+            , m_IsCurrent(isCurrent)
+            , m_WasAttacked(false)
         {
-
             if (!m_TileSet.loadFromFile("../Assets/tiles_test.png"))
             {
                 LOG_ERROR("TileSet was not loaded correctly !");
             }
+
+            LoadBoard();
+
+            Engine::EventListener<Board, Engine::ClickEvent> listenerClickEvent(this, &Board::OnEvent);
+            Engine::EventManager::GetInstance()->AddListener(listenerClickEvent);
+        }
+
+        Board::~Board()
+        {
+            Engine::EventListener<Board, Engine::ClickEvent> listenerClickEvent(this, &Board::OnEvent);
+            Engine::EventManager::GetInstance()->RemoveListener(listenerClickEvent);
         }
 
         void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -45,7 +58,7 @@ namespace BatNav
                 {
                     // Get the current tile number
                     const size_t boardIndex = static_cast<size_t>(i) + static_cast<size_t>(j) * static_cast<size_t>(BOARD_SIZE.y);
-                    const int tileNumber = m_Board[boardIndex] ? 3: 1;
+                    const int tileNumber = m_Board[boardIndex] ? 3 : 1;
 
                     // Find its position in the tileset texture
                     int tu = tileNumber % (m_TileSet.getSize().x / TILE_SIZE.x);
@@ -69,5 +82,38 @@ namespace BatNav
             }
         }
 
+        void Board::OnEvent(const Engine::Event* evnt)
+        {
+            if (m_IsCurrent)
+            {
+                if (const Engine::ClickEvent* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt))
+                {
+                    LOG_DEBUG("Click event received !");
+                    sf::Vector2f clickPosition = clickEvent->GetClickPosition();
+                    ManageClickAttack(clickPosition);
+                }
+            }
+        }
+
+        void Board::ManageClickAttack(const sf::Vector2f& clickPosition)
+        {
+            // Convert the click position to get the tile coordinates
+            const float i = floorf(clickPosition.x / static_cast<float>(TILE_SIZE.x));
+            const float j = floorf(clickPosition.y / static_cast<float>(TILE_SIZE.y));
+            LOG_DEBUG("Target tile : " << i << " / " << j);
+
+            // Convert the the coordinates to get the index on the board
+            const size_t boardIndex = static_cast<size_t>(i) + static_cast<size_t>(j) * static_cast<size_t>(BOARD_SIZE.y);
+
+            // Mark the tile and board as attacked
+            if (!m_Board[boardIndex])
+            {
+                m_Board[boardIndex] = true;
+                m_WasAttacked = true;
+            }
+
+            // Reload the board
+            LoadBoard();
+        }
     }
 }

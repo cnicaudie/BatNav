@@ -4,6 +4,8 @@
 
 #include "InputManager.h"
 #include "../Log/Log.h"
+#include "../Event/EventManager.h"
+#include "../Event/EventTypes/ClickEvent.h"
 
 namespace BatNav
 {
@@ -38,13 +40,8 @@ namespace BatNav
                 {
                     //AddAction(std::make_shared<MouseBinding>(event.mouseButton.button));
 
-                    // Fire event click (for GUI)
-                    //std::shared_ptr<ClickEvent> clickEvent = std::make_shared<ClickEvent>(m_GUIMousePosition);
-                    //EventManager::GetInstance()->Fire(clickEvent);
-
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
-                        LOG_DEBUG("Left clicked!");
                         m_IsClicking = true;
                         m_MouseClickTimer.restart();
                     }
@@ -61,17 +58,24 @@ namespace BatNav
                         const float CLICK_THRESHOLD = 0.5f;
                         const float elapsedTime = m_MouseClickTimer.getElapsedTime().asSeconds();
 
-                        m_IsClicking = false;
+                        //LOG_DEBUG("Click timer : " << elapsedTime << " sec");
 
-                        LOG_DEBUG("Click timer : " << elapsedTime << " sec");
+                        if (m_IsClicking)
+                        {
+                            m_IsClicking = false;
 
-                        if (elapsedTime < CLICK_THRESHOLD)
-                        {
-                            LOG_DEBUG("Clicking at position : " << m_MousePosition.x << " / " << m_MousePosition.y);
-                        }
-                        else
-                        {
-                            LOG_DEBUG("Dropping");
+                            if (elapsedTime < CLICK_THRESHOLD)
+                            {
+                                //LOG_DEBUG("Clicking at position : " << m_MousePosition.x << " / " << m_MousePosition.y);
+
+                                // Fire a click event
+                                std::shared_ptr<ClickEvent> clickEvent = std::make_shared<ClickEvent>(m_MousePosition);
+                                EventManager::GetInstance()->Fire(clickEvent);
+                            }
+                            else
+                            {
+                                //LOG_DEBUG("Dropping");
+                            }
                         }
                     }
 
@@ -85,7 +89,7 @@ namespace BatNav
 
                     if (m_IsClicking)
                     {
-                        LOG_DEBUG("Dragging");
+                        //LOG_DEBUG("Dragging");
                     }
 
                     break;

@@ -142,13 +142,83 @@ CMakeFiles/BatNavProject.dir/Engine/Input/InputManager.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BatNavProject.dir/Engine/Input/InputManager.cpp.s"
 	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Input/InputManager.cpp -o CMakeFiles/BatNavProject.dir/Engine/Input/InputManager.cpp.s
 
+CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.o: CMakeFiles/BatNavProject.dir/flags.make
+CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.o: ../Engine/Event/EventManager.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.o -c /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventManager.cpp
+
+CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventManager.cpp > CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.i
+
+CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventManager.cpp -o CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.s
+
+CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.o: CMakeFiles/BatNavProject.dir/flags.make
+CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.o: ../Engine/Event/Listener/IEventListener.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.o -c /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/Listener/IEventListener.cpp
+
+CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/Listener/IEventListener.cpp > CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.i
+
+CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/Listener/IEventListener.cpp -o CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.s
+
+CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.o: CMakeFiles/BatNavProject.dir/flags.make
+CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.o: ../Engine/Event/Listener/EventListener.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.o -c /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/Listener/EventListener.cpp
+
+CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/Listener/EventListener.cpp > CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.i
+
+CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/Listener/EventListener.cpp -o CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.s
+
+CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.o: CMakeFiles/BatNavProject.dir/flags.make
+CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.o: ../Engine/Event/EventTypes/Event.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.o -c /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/Event.cpp
+
+CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/Event.cpp > CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.i
+
+CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/Event.cpp -o CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.s
+
+CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.o: CMakeFiles/BatNavProject.dir/flags.make
+CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.o: ../Engine/Event/EventTypes/ClickEvent.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.o"
+	/Library/Developer/CommandLineTools/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.o -c /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/ClickEvent.cpp
+
+CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.i"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/ClickEvent.cpp > CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.i
+
+CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.s"
+	/Library/Developer/CommandLineTools/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/ClickEvent.cpp -o CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.s
+
 # Object files for target BatNavProject
 BatNavProject_OBJECTS = \
 "CMakeFiles/BatNavProject.dir/main.cpp.o" \
 "CMakeFiles/BatNavProject.dir/Engine/Game.cpp.o" \
 "CMakeFiles/BatNavProject.dir/Gameplay/GameManager.cpp.o" \
 "CMakeFiles/BatNavProject.dir/Gameplay/Board/Board.cpp.o" \
-"CMakeFiles/BatNavProject.dir/Engine/Input/InputManager.cpp.o"
+"CMakeFiles/BatNavProject.dir/Engine/Input/InputManager.cpp.o" \
+"CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.o" \
+"CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.o" \
+"CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.o" \
+"CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.o" \
+"CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.o"
 
 # External object files for target BatNavProject
 BatNavProject_EXTERNAL_OBJECTS =
@@ -158,6 +228,11 @@ BatNavProject: CMakeFiles/BatNavProject.dir/Engine/Game.cpp.o
 BatNavProject: CMakeFiles/BatNavProject.dir/Gameplay/GameManager.cpp.o
 BatNavProject: CMakeFiles/BatNavProject.dir/Gameplay/Board/Board.cpp.o
 BatNavProject: CMakeFiles/BatNavProject.dir/Engine/Input/InputManager.cpp.o
+BatNavProject: CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.o
+BatNavProject: CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.o
+BatNavProject: CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.o
+BatNavProject: CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.o
+BatNavProject: CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.o
 BatNavProject: CMakeFiles/BatNavProject.dir/build.make
 BatNavProject: /usr/local/lib/libsfml-graphics.2.5.1.dylib
 BatNavProject: /usr/local/lib/libsfml-audio.2.5.1.dylib
@@ -165,7 +240,7 @@ BatNavProject: /usr/local/lib/libsfml-network.2.5.1.dylib
 BatNavProject: /usr/local/lib/libsfml-window.2.5.1.dylib
 BatNavProject: /usr/local/lib/libsfml-system.2.5.1.dylib
 BatNavProject: CMakeFiles/BatNavProject.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable BatNavProject"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable BatNavProject"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/BatNavProject.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

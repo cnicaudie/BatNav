@@ -9,6 +9,8 @@ namespace BatNav
 {
     namespace Gameplay
     {
+        static constexpr float SWITCH_TURN_COOLDOWN = 1.f;
+
         GameManager* GameManager::m_GameManager = nullptr;
 
         GameManager* GameManager::GetInstance()
@@ -24,20 +26,16 @@ namespace BatNav
         GameManager::GameManager()
                 : Game{ "BatNav (WIP)" }
                 , m_CurrentState(GameState::NOT_STARTED)
-                , m_IsPlayerATurn(true)
-                , m_BoardA()
-                , m_BoardB()
+                , m_BoardA(true)
+                , m_BoardB(false)
         {
-            m_Shape.setRadius(40.f);
-            m_Shape.setPosition(100.f, 100.f);
-            m_Shape.setFillColor(sf::Color::Cyan);
-
-            m_BoardA.LoadBoard();
-
             // Center the view
             sf::View gameView;
             gameView.setViewport(sf::FloatRect(0.25f, 0.25, 1.5f, 1.5f));
             m_Window.setView(gameView);
+
+            // TODO : Remove that when integrating a main menu
+            m_CurrentState = GameState::PLAYING;
         }
 
         GameManager::~GameManager()
@@ -45,20 +43,69 @@ namespace BatNav
             delete m_GameManager;
         }
 
-
         void GameManager::Update(float deltaTime)
         {
+            Engine::EventManager::GetInstance()->Update();
             m_InputManager->UpdateMousePosition(m_Window);
+
+            if (m_CurrentState == GameState::PLAYING)
+            {
+                CheckAttacks();
+
+                if ((m_CurrentState == GameState::SWITCHING_TURNS)
+                    && (m_SwitchTurnTimer.getElapsedTime().asSeconds() >= SWITCH_TURN_COOLDOWN))
+                {
+                    SwitchCurrentBoard();
+                }
+            }
+        }
+
+        void GameManager::SwitchCurrentBoard()
+        {
+            if (m_BoardA.IsCurrent())
+            {
+                m_BoardA.ResetCurrent();
+                m_BoardB.SetToCurrent();
+            }
+            else if (m_BoardB.IsCurrent())
+            {
+                m_BoardB.ResetCurrent();
+                m_BoardA.SetToCurrent();
+            }
+
+            m_CurrentState = GameState::PLAYING;
+        }
+
+        void GameManager::CheckAttacks()
+        {
+            if (m_BoardA.WasAttacked() || m_BoardB.WasAttacked())
+            {
+                if (m_BoardA.IsCurrent())
+                {
+                    m_BoardA.ResetAttack();
+                }
+                else if (m_BoardB.IsCurrent())
+                {
+                    m_BoardB.ResetAttack();
+                }
+
+                m_CurrentState = GameState::SWITCHING_TURNS;
+                m_SwitchTurnTimer.restart();
+            }
         }
 
         void GameManager::Render(sf::RenderTarget& target)
         {
             target.clear(sf::Color(0, 0, 0));
-            target.draw(m_Shape);
 
-            m_IsPlayerATurn
-                ? target.draw(m_BoardA)
-                : target.draw(m_BoardB);
+            if (m_BoardA.IsCurrent())
+            {
+                target.draw(m_BoardA);
+            }
+            else if (m_BoardB.IsCurrent())
+            {
+                target.draw(m_BoardB);
+            }
         }
     }
 }

@@ -83,6 +83,39 @@
 		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/EngineIncludes.h">
 			<Option target="BatNavProject"/>
 		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventManager.cpp">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventManager.h">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/ClickEvent.cpp">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/ClickEvent.h">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/Event.cpp">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/Event.h">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/EventTypes/EventType.h">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/Listener/EventListener.cpp">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/Listener/EventListener.h">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/Listener/IEventListener.cpp">
+			<Option target="BatNavProject"/>
+		</Unit>
+		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Event/Listener/IEventListener.h">
+			<Option target="BatNavProject"/>
+		</Unit>
 		<Unit filename="/Users/cha/Desktop/dev/cpp/SFML/BatNav/BatNavProject/Engine/Game.cpp">
 			<Option target="BatNavProject"/>
 		</Unit>

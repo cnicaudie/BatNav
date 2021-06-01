@@ -143,6 +143,141 @@ BatNavProject/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/build
 .PHONY : BatNavProject/fast
 
+Engine/Event/EventManager.o: Engine/Event/EventManager.cpp.o
+
+.PHONY : Engine/Event/EventManager.o
+
+# target to build an object file
+Engine/Event/EventManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.o
+.PHONY : Engine/Event/EventManager.cpp.o
+
+Engine/Event/EventManager.i: Engine/Event/EventManager.cpp.i
+
+.PHONY : Engine/Event/EventManager.i
+
+# target to preprocess a source file
+Engine/Event/EventManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.i
+.PHONY : Engine/Event/EventManager.cpp.i
+
+Engine/Event/EventManager.s: Engine/Event/EventManager.cpp.s
+
+.PHONY : Engine/Event/EventManager.s
+
+# target to generate assembly for a file
+Engine/Event/EventManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/EventManager.cpp.s
+.PHONY : Engine/Event/EventManager.cpp.s
+
+Engine/Event/EventTypes/ClickEvent.o: Engine/Event/EventTypes/ClickEvent.cpp.o
+
+.PHONY : Engine/Event/EventTypes/ClickEvent.o
+
+# target to build an object file
+Engine/Event/EventTypes/ClickEvent.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.o
+.PHONY : Engine/Event/EventTypes/ClickEvent.cpp.o
+
+Engine/Event/EventTypes/ClickEvent.i: Engine/Event/EventTypes/ClickEvent.cpp.i
+
+.PHONY : Engine/Event/EventTypes/ClickEvent.i
+
+# target to preprocess a source file
+Engine/Event/EventTypes/ClickEvent.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.i
+.PHONY : Engine/Event/EventTypes/ClickEvent.cpp.i
+
+Engine/Event/EventTypes/ClickEvent.s: Engine/Event/EventTypes/ClickEvent.cpp.s
+
+.PHONY : Engine/Event/EventTypes/ClickEvent.s
+
+# target to generate assembly for a file
+Engine/Event/EventTypes/ClickEvent.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/ClickEvent.cpp.s
+.PHONY : Engine/Event/EventTypes/ClickEvent.cpp.s
+
+Engine/Event/EventTypes/Event.o: Engine/Event/EventTypes/Event.cpp.o
+
+.PHONY : Engine/Event/EventTypes/Event.o
+
+# target to build an object file
+Engine/Event/EventTypes/Event.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.o
+.PHONY : Engine/Event/EventTypes/Event.cpp.o
+
+Engine/Event/EventTypes/Event.i: Engine/Event/EventTypes/Event.cpp.i
+
+.PHONY : Engine/Event/EventTypes/Event.i
+
+# target to preprocess a source file
+Engine/Event/EventTypes/Event.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.i
+.PHONY : Engine/Event/EventTypes/Event.cpp.i
+
+Engine/Event/EventTypes/Event.s: Engine/Event/EventTypes/Event.cpp.s
+
+.PHONY : Engine/Event/EventTypes/Event.s
+
+# target to generate assembly for a file
+Engine/Event/EventTypes/Event.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/EventTypes/Event.cpp.s
+.PHONY : Engine/Event/EventTypes/Event.cpp.s
+
+Engine/Event/Listener/EventListener.o: Engine/Event/Listener/EventListener.cpp.o
+
+.PHONY : Engine/Event/Listener/EventListener.o
+
+# target to build an object file
+Engine/Event/Listener/EventListener.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.o
+.PHONY : Engine/Event/Listener/EventListener.cpp.o
+
+Engine/Event/Listener/EventListener.i: Engine/Event/Listener/EventListener.cpp.i
+
+.PHONY : Engine/Event/Listener/EventListener.i
+
+# target to preprocess a source file
+Engine/Event/Listener/EventListener.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.i
+.PHONY : Engine/Event/Listener/EventListener.cpp.i
+
+Engine/Event/Listener/EventListener.s: Engine/Event/Listener/EventListener.cpp.s
+
+.PHONY : Engine/Event/Listener/EventListener.s
+
+# target to generate assembly for a file
+Engine/Event/Listener/EventListener.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/Listener/EventListener.cpp.s
+.PHONY : Engine/Event/Listener/EventListener.cpp.s
+
+Engine/Event/Listener/IEventListener.o: Engine/Event/Listener/IEventListener.cpp.o
+
+.PHONY : Engine/Event/Listener/IEventListener.o
+
+# target to build an object file
+Engine/Event/Listener/IEventListener.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.o
+.PHONY : Engine/Event/Listener/IEventListener.cpp.o
+
+Engine/Event/Listener/IEventListener.i: Engine/Event/Listener/IEventListener.cpp.i
+
+.PHONY : Engine/Event/Listener/IEventListener.i
+
+# target to preprocess a source file
+Engine/Event/Listener/IEventListener.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.i
+.PHONY : Engine/Event/Listener/IEventListener.cpp.i
+
+Engine/Event/Listener/IEventListener.s: Engine/Event/Listener/IEventListener.cpp.s
+
+.PHONY : Engine/Event/Listener/IEventListener.s
+
+# target to generate assembly for a file
+Engine/Event/Listener/IEventListener.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BatNavProject.dir/build.make CMakeFiles/BatNavProject.dir/Engine/Event/Listener/IEventListener.cpp.s
+.PHONY : Engine/Event/Listener/IEventListener.cpp.s
+
 Engine/Game.o: Engine/Game.cpp.o
 
 .PHONY : Engine/Game.o
@@ -287,6 +422,21 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... BatNavProject"
+	@echo "... Engine/Event/EventManager.o"
+	@echo "... Engine/Event/EventManager.i"
+	@echo "... Engine/Event/EventManager.s"
+	@echo "... Engine/Event/EventTypes/ClickEvent.o"
+	@echo "... Engine/Event/EventTypes/ClickEvent.i"
+	@echo "... Engine/Event/EventTypes/ClickEvent.s"
+	@echo "... Engine/Event/EventTypes/Event.o"
+	@echo "... Engine/Event/EventTypes/Event.i"
+	@echo "... Engine/Event/EventTypes/Event.s"
+	@echo "... Engine/Event/Listener/EventListener.o"
+	@echo "... Engine/Event/Listener/EventListener.i"
+	@echo "... Engine/Event/Listener/EventListener.s"
+	@echo "... Engine/Event/Listener/IEventListener.o"
+	@echo "... Engine/Event/Listener/IEventListener.i"
+	@echo "... Engine/Event/Listener/IEventListener.s"
 	@echo "... Engine/Game.o"
 	@echo "... Engine/Game.i"
 	@echo "... Engine/Game.s"

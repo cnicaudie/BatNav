@@ -27,22 +27,25 @@ namespace BatNav
             GameManager();
             ~GameManager();
 
+            void CheckAttacks();
+            void SwitchCurrentBoard();
+
             //====================//
 
             static GameManager* m_GameManager; // Singleton instance
 
             enum class GameState
             {
-                NOT_STARTED = 0,
-                PLAYING     = 1,
-                OVER        = 2
+                NOT_STARTED     = 0,
+                PLAYING         = 1,
+                SWITCHING_TURNS = 2,
+                OVER            = 3
             } m_CurrentState;
 
-            bool m_IsPlayerATurn;
             Board m_BoardA;
             Board m_BoardB;
 
-            sf::CircleShape m_Shape; // Test shape
+            sf::Clock m_SwitchTurnTimer;
         };
     }
 }
