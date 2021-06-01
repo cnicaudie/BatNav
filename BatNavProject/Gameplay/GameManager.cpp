@@ -51,24 +51,27 @@ namespace BatNav
             if (m_CurrentState == GameState::PLAYING)
             {
                 CheckAttacks();
-
-                if ((m_CurrentState == GameState::SWITCHING_TURNS)
-                    && (m_SwitchTurnTimer.getElapsedTime().asSeconds() >= SWITCH_TURN_COOLDOWN))
-                {
-                    SwitchCurrentBoard();
-                }
+            }
+            else if ((m_CurrentState == GameState::SWITCHING_TURNS)
+                && (m_SwitchTurnTimer.getElapsedTime().asSeconds() >= SWITCH_TURN_COOLDOWN))
+            {
+                SwitchCurrentBoard();
             }
         }
 
         void GameManager::SwitchCurrentBoard()
         {
+            LOG_DEBUG("Switching current board");
+
             if (m_BoardA.IsCurrent())
             {
+                m_BoardA.ResetAttack();
                 m_BoardA.ResetCurrent();
                 m_BoardB.SetToCurrent();
             }
             else if (m_BoardB.IsCurrent())
             {
+                m_BoardB.ResetAttack();
                 m_BoardB.ResetCurrent();
                 m_BoardA.SetToCurrent();
             }
@@ -80,14 +83,7 @@ namespace BatNav
         {
             if (m_BoardA.WasAttacked() || m_BoardB.WasAttacked())
             {
-                if (m_BoardA.IsCurrent())
-                {
-                    m_BoardA.ResetAttack();
-                }
-                else if (m_BoardB.IsCurrent())
-                {
-                    m_BoardB.ResetAttack();
-                }
+                LOG_DEBUG("Attack detected!");
 
                 m_CurrentState = GameState::SWITCHING_TURNS;
                 m_SwitchTurnTimer.restart();

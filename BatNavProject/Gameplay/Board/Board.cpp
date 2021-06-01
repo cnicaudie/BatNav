@@ -84,22 +84,29 @@ namespace BatNav
 
         void Board::OnEvent(const Engine::Event* evnt)
         {
-            if (m_IsCurrent)
+            if (m_IsCurrent && !m_WasAttacked)
             {
                 if (const Engine::ClickEvent* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt))
                 {
                     LOG_DEBUG("Click event received !");
-                    sf::Vector2f clickPosition = clickEvent->GetClickPosition();
-                    ManageClickAttack(clickPosition);
+                    ManageClickAttack(clickEvent->GetClickPosition());
                 }
             }
         }
 
         void Board::ManageClickAttack(const sf::Vector2f& clickPosition)
         {
+            // Check that click happened within the board limits
+            if (clickPosition.x < 0 || clickPosition.x > BOARD_SIZE.x * TILE_SIZE.x
+                || clickPosition.y < 0 || clickPosition.y > BOARD_SIZE.y * TILE_SIZE.y)
+            {
+                return;
+            }
+
             // Convert the click position to get the tile coordinates
             const float i = floorf(clickPosition.x / static_cast<float>(TILE_SIZE.x));
             const float j = floorf(clickPosition.y / static_cast<float>(TILE_SIZE.y));
+            LOG_DEBUG("Click position : " << clickPosition.x << " / " << clickPosition.y);
             LOG_DEBUG("Target tile : " << i << " / " << j);
 
             // Convert the the coordinates to get the index on the board
@@ -110,10 +117,10 @@ namespace BatNav
             {
                 m_Board[boardIndex] = true;
                 m_WasAttacked = true;
-            }
 
-            // Reload the board
-            LoadBoard();
+                // Reload the board
+                LoadBoard();
+            }
         }
     }
 }
