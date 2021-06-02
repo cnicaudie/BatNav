@@ -37,6 +37,7 @@
 
 # CMake
 cmake-build-*/
+cmake-build-debug
 
 # User-specific stuff:
 .idea/workspace.xml
