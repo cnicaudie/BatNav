@@ -17,9 +17,9 @@ namespace BatNav
 
             void ManageInputEvents(const sf::Event& event);
 
-            inline void UpdateMousePosition(const sf::RenderWindow& gameWindow)
+            inline void UpdateMousePosition(const sf::Vector2f& mousePosition)
             {
-                m_MousePosition = gameWindow.mapPixelToCoords(sf::Mouse::getPosition(gameWindow));
+                m_MousePosition = mousePosition;
             };
 
         private:

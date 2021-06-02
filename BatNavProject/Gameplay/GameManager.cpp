@@ -45,11 +45,16 @@ namespace BatNav
 
         void GameManager::Update(float deltaTime)
         {
+            const sf::Vector2f mousePosition = m_Window.mapPixelToCoords(sf::Mouse::getPosition(m_Window));
+
             Engine::EventManager::GetInstance()->Update();
-            m_InputManager->UpdateMousePosition(m_Window);
+            m_InputManager->UpdateMousePosition(mousePosition);
 
             if (m_CurrentState == GameState::PLAYING)
             {
+                m_BoardB.Update(mousePosition);
+                m_BoardA.Update(mousePosition);
+
                 CheckAttacks();
             }
             else if ((m_CurrentState == GameState::SWITCHING_TURNS)

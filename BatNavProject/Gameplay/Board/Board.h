@@ -18,6 +18,7 @@ namespace BatNav
             Board(const bool isCurrent);
             ~Board();
 
+            void Update(const sf::Vector2f& cursorPosition);
             void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
             void LoadBoard();
 
@@ -34,18 +35,33 @@ namespace BatNav
             }
 
         private:
+            int GetTileNumberFromType(const size_t tileIndex);
+            void CreateVertexQuad(unsigned int i, unsigned int j, const size_t tileIndex, int tu, int tv);
+
             void OnEvent(const Engine::Event* evnt);
-            void ManageClickAttack(const sf::Vector2f& clickPosition);
+
+            void SelectTile(const sf::Vector2f &cursorPosition);
+            void UpdateSelectedTileOnBoard();
 
             //====================//
+
+            enum class TileType
+            {
+                FREE        = 0,
+                SELECTED    = 1,
+                ATTACKED    = 2
+            };
+
+            int m_SelectedTileIndex;
 
             bool m_IsCurrent;
             bool m_WasAttacked;
 
-            std::vector<bool> m_Board;
+            std::vector<TileType> m_Board;
             sf::VertexArray m_Vertices;
 
             sf::Texture m_TileSet;
+
         };
     }
 }

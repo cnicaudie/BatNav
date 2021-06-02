@@ -15,7 +15,7 @@ namespace BatNav
         static const sf::Vector2u TILE_SIZE { 32, 32 };
 
         Board::Board(const bool isCurrent)
-            : m_Board(BOARD_SIZE.x * BOARD_SIZE.y, 0)
+            : m_Board(BOARD_SIZE.x * BOARD_SIZE.y, TileType::FREE)
             , m_IsCurrent(isCurrent)
             , m_WasAttacked(false)
         {
@@ -34,6 +34,42 @@ namespace BatNav
         {
             Engine::EventListener<Board, Engine::ClickEvent> listenerClickEvent(this, &Board::OnEvent);
             Engine::EventManager::GetInstance()->RemoveListener(listenerClickEvent);
+        }
+
+        void Board::Update(const sf::Vector2f& cursorPosition)
+        {
+            if (m_WasAttacked || !m_IsCurrent
+                || cursorPosition.x < 0 || cursorPosition.x > BOARD_SIZE.x * TILE_SIZE.x
+                || cursorPosition.y < 0 || cursorPosition.y > BOARD_SIZE.y * TILE_SIZE.y)
+            {
+                return;
+            }
+
+            SelectTile(cursorPosition);
+        }
+
+        void Board::SelectTile(const sf::Vector2f &cursorPosition)
+        {
+            // Convert the cursor position to get the tile coordinates
+            const float i = floorf(cursorPosition.x / static_cast<float>(TILE_SIZE.x));
+            const float j = floorf(cursorPosition.y / static_cast<float>(TILE_SIZE.y));
+
+            // Convert the coordinates to get the tile index on the board
+            const size_t tileIndex = static_cast<size_t>(i) + static_cast<size_t>(j) * static_cast<size_t>(BOARD_SIZE.y);
+
+            // If the tile is free
+            if (m_SelectedTileIndex != tileIndex && m_Board[tileIndex] == TileType::FREE)
+            {
+                if (m_Board[m_SelectedTileIndex] != TileType::ATTACKED)
+                {
+                    m_Board[m_SelectedTileIndex] = TileType::FREE;
+                    UpdateSelectedTileOnBoard();
+                }
+
+                m_Board[tileIndex] = TileType::SELECTED;
+                m_SelectedTileIndex = tileIndex;
+                UpdateSelectedTileOnBoard();
+            }
         }
 
         void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -57,29 +93,68 @@ namespace BatNav
                 for (unsigned int j = 0; j < BOARD_SIZE.y; ++j)
                 {
                     // Get the current tile number
-                    const size_t boardIndex = static_cast<size_t>(i) + static_cast<size_t>(j) * static_cast<size_t>(BOARD_SIZE.y);
-                    const int tileNumber = m_Board[boardIndex] ? 3 : 1;
+                    const size_t tileIndex = static_cast<size_t>(i) + static_cast<size_t>(j) * static_cast<size_t>(BOARD_SIZE.y);
+                    int tileNumber = GetTileNumberFromType(tileIndex);
 
                     // Find its position in the tileset texture
                     int tu = tileNumber % (m_TileSet.getSize().x / TILE_SIZE.x);
                     int tv = tileNumber / (m_TileSet.getSize().x / TILE_SIZE.x);
 
                     // Get a pointer to the current tile's quad
-                    sf::Vertex* quad = &m_Vertices[boardIndex * 4];
-
-                    // Define its 4 corners
-                    quad[0].position = sf::Vector2f(static_cast<float>(i * TILE_SIZE.x), static_cast<float>(j * TILE_SIZE.y));
-                    quad[1].position = sf::Vector2f(static_cast<float>((i + 1) * TILE_SIZE.x), static_cast<float>(j * TILE_SIZE.y));
-                    quad[2].position = sf::Vector2f(static_cast<float>((i + 1) * TILE_SIZE.x), static_cast<float>((j + 1) * TILE_SIZE.y));
-                    quad[3].position = sf::Vector2f(static_cast<float>(i * TILE_SIZE.x), static_cast<float>((j + 1) * TILE_SIZE.y));
-
-                    // Define its 4 texture coordinates
-                    quad[0].texCoords = sf::Vector2f(static_cast<float>(tu * TILE_SIZE.x), static_cast<float>(tv * TILE_SIZE.y));
-                    quad[1].texCoords = sf::Vector2f(static_cast<float>((tu + 1) * TILE_SIZE.x), static_cast<float>(tv * TILE_SIZE.y));
-                    quad[2].texCoords = sf::Vector2f(static_cast<float>((tu + 1) * TILE_SIZE.x), static_cast<float>((tv + 1) * TILE_SIZE.y));
-                    quad[3].texCoords = sf::Vector2f(static_cast<float>(tu * TILE_SIZE.x), static_cast<float>((tv + 1) * TILE_SIZE.y));
+                    CreateVertexQuad(i, j, tileIndex, tu, tv);
                 }
             }
+        }
+
+        int Board::GetTileNumberFromType(const size_t tileIndex)
+        {
+            switch (m_Board[tileIndex])
+            {
+                case TileType::FREE:
+                    return 1;
+
+                case TileType::SELECTED:
+                    return 2;
+
+                case TileType::ATTACKED:
+                    return 3;
+
+                default:
+                    return 4;
+            }
+        }
+
+        void Board::CreateVertexQuad(unsigned int i, unsigned int j, const size_t tileIndex, int tu, int tv)
+        {
+            sf::Vertex* quad = &m_Vertices[tileIndex * 4];
+
+            // Define its 4 corners
+            quad[0].position = sf::Vector2f(static_cast<float>(i * TILE_SIZE.x), static_cast<float>(j * TILE_SIZE.y));
+            quad[1].position = sf::Vector2f(static_cast<float>((i + 1) * TILE_SIZE.x), static_cast<float>(j * TILE_SIZE.y));
+            quad[2].position = sf::Vector2f(static_cast<float>((i + 1) * TILE_SIZE.x), static_cast<float>((j + 1) * TILE_SIZE.y));
+            quad[3].position = sf::Vector2f(static_cast<float>(i * TILE_SIZE.x), static_cast<float>((j + 1) * TILE_SIZE.y));
+
+            // Define its 4 texture coordinates
+            quad[0].texCoords = sf::Vector2f(static_cast<float>(tu * TILE_SIZE.x), static_cast<float>(tv * TILE_SIZE.y));
+            quad[1].texCoords = sf::Vector2f(static_cast<float>((tu + 1) * TILE_SIZE.x), static_cast<float>(tv * TILE_SIZE.y));
+            quad[2].texCoords = sf::Vector2f(static_cast<float>((tu + 1) * TILE_SIZE.x), static_cast<float>((tv + 1) * TILE_SIZE.y));
+            quad[3].texCoords = sf::Vector2f(static_cast<float>(tu * TILE_SIZE.x), static_cast<float>((tv + 1) * TILE_SIZE.y));
+        }
+
+        void Board::UpdateSelectedTileOnBoard()
+        {
+            // Retrieve the coordinates
+            int i = m_SelectedTileIndex % BOARD_SIZE.y;
+            int j = m_SelectedTileIndex / BOARD_SIZE.y;
+
+            // Retrieve the tile number
+            int tileNumber = GetTileNumberFromType(m_SelectedTileIndex);
+
+            // Find its position in the tileset texture
+            int tu = tileNumber % (m_TileSet.getSize().x / TILE_SIZE.x);
+            int tv = tileNumber / (m_TileSet.getSize().x / TILE_SIZE.x);
+
+            CreateVertexQuad(i, j, m_SelectedTileIndex, tu, tv);
         }
 
         void Board::OnEvent(const Engine::Event* evnt)
@@ -89,37 +164,19 @@ namespace BatNav
                 if (const Engine::ClickEvent* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt))
                 {
                     LOG_DEBUG("Click event received !");
-                    ManageClickAttack(clickEvent->GetClickPosition());
+                    const sf::Vector2f clickPosition = clickEvent->GetClickPosition();
+
+                    // Check that click happened within the board limits
+                    if (clickPosition.x < 0 || clickPosition.x > BOARD_SIZE.x * TILE_SIZE.x
+                        || clickPosition.y < 0 || clickPosition.y > BOARD_SIZE.y * TILE_SIZE.y)
+                    {
+                        return;
+                    }
+
+                    m_WasAttacked = true;
+                    m_Board[m_SelectedTileIndex] = TileType::ATTACKED;
+                    UpdateSelectedTileOnBoard();
                 }
-            }
-        }
-
-        void Board::ManageClickAttack(const sf::Vector2f& clickPosition)
-        {
-            // Check that click happened within the board limits
-            if (clickPosition.x < 0 || clickPosition.x > BOARD_SIZE.x * TILE_SIZE.x
-                || clickPosition.y < 0 || clickPosition.y > BOARD_SIZE.y * TILE_SIZE.y)
-            {
-                return;
-            }
-
-            // Convert the click position to get the tile coordinates
-            const float i = floorf(clickPosition.x / static_cast<float>(TILE_SIZE.x));
-            const float j = floorf(clickPosition.y / static_cast<float>(TILE_SIZE.y));
-            LOG_DEBUG("Click position : " << clickPosition.x << " / " << clickPosition.y);
-            LOG_DEBUG("Target tile : " << i << " / " << j);
-
-            // Convert the the coordinates to get the index on the board
-            const size_t boardIndex = static_cast<size_t>(i) + static_cast<size_t>(j) * static_cast<size_t>(BOARD_SIZE.y);
-
-            // Mark the tile and board as attacked
-            if (!m_Board[boardIndex])
-            {
-                m_Board[boardIndex] = true;
-                m_WasAttacked = true;
-
-                // Reload the board
-                LoadBoard();
             }
         }
     }
