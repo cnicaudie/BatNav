@@ -21,7 +21,8 @@ namespace BatNav
             void Update(float deltaTime) override;
             void Render(sf::RenderTarget& target) override;
 
-            inline const bool IsGameOver() const { return m_CurrentState == GameState::OVER; }
+            //inline const bool IsGameOver() const { return m_CurrentState == GameState::OVER; }
+            inline const bool IsPlacingBoats() const { return m_CurrentState == GameState::PLACING_BOATS; }
 
         private:
             GameManager();
@@ -37,9 +38,10 @@ namespace BatNav
             enum class GameState
             {
                 NOT_STARTED     = 0,
-                PLAYING         = 1,
-                SWITCHING_TURNS = 2,
-                OVER            = 3
+                PLACING_BOATS   = 1,
+                PLAYING         = 2,
+                SWITCHING_TURNS = 3,
+                OVER            = 4
             } m_CurrentState;
 
             Board m_BoardA;

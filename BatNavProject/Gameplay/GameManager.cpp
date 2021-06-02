@@ -35,7 +35,7 @@ namespace BatNav
             m_Window.setView(gameView);
 
             // TODO : Remove that when integrating a main menu
-            m_CurrentState = GameState::PLAYING;
+            m_CurrentState = GameState::PLACING_BOATS;
         }
 
         GameManager::~GameManager()
@@ -50,17 +50,30 @@ namespace BatNav
             Engine::EventManager::GetInstance()->Update();
             m_InputManager->UpdateMousePosition(mousePosition);
 
-            if (m_CurrentState == GameState::PLAYING)
-            {
-                m_BoardB.Update(mousePosition);
-                m_BoardA.Update(mousePosition);
+            m_BoardB.Update(mousePosition);
+            m_BoardA.Update(mousePosition);
 
+            if (m_CurrentState == GameState::PLACING_BOATS)
+            {
+                if (m_BoardA.IsCurrent() && m_BoardA.PlacedAllBoats())
+                {
+                    SwitchCurrentBoard();
+                }
+                else if (m_BoardB.IsCurrent() && m_BoardB.PlacedAllBoats())
+                {
+                    SwitchCurrentBoard();
+                    m_CurrentState = GameState::PLAYING;
+                }
+            }
+            else if (m_CurrentState == GameState::PLAYING)
+            {
                 CheckAttacks();
             }
             else if ((m_CurrentState == GameState::SWITCHING_TURNS)
                 && (m_SwitchTurnTimer.getElapsedTime().asSeconds() >= SWITCH_TURN_COOLDOWN))
             {
                 SwitchCurrentBoard();
+                m_CurrentState = GameState::PLAYING;
             }
         }
 
@@ -80,8 +93,6 @@ namespace BatNav
                 m_BoardB.ResetCurrent();
                 m_BoardA.SetToCurrent();
             }
-
-            m_CurrentState = GameState::PLAYING;
         }
 
         void GameManager::CheckAttacks()

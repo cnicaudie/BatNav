@@ -4,7 +4,7 @@
 
 #include <cmath>
 #include "Board.h"
-#include "../GameplayIncludes.h"
+#include "../GameManager.h"
 #include "../../Engine/Event/EventTypes/ClickEvent.h"
 
 namespace BatNav
@@ -15,10 +15,15 @@ namespace BatNav
         static const sf::Vector2u TILE_SIZE { 32, 32 };
 
         Board::Board(const bool isCurrent)
-            : m_Board(BOARD_SIZE.x * BOARD_SIZE.y, TileType::FREE)
+            : m_Board(BOARD_SIZE.x * BOARD_SIZE.y, TileType::WATER)
+            , m_Boats(5)
             , m_IsCurrent(isCurrent)
             , m_WasAttacked(false)
+            , m_PlacedAllBoats(false)
+            , m_SelectedBoatIndex(0)
+            , m_SelectedTileIndex(0)
         {
+            // Board loading
             if (!m_TileSet.loadFromFile("../Assets/tiles_test.png"))
             {
                 LOG_ERROR("TileSet was not loaded correctly !");
@@ -26,8 +31,30 @@ namespace BatNav
 
             LoadBoard();
 
+            // Boats preparation
+            InitBoats();
+
+            // Event listeners configuration
             Engine::EventListener<Board, Engine::ClickEvent> listenerClickEvent(this, &Board::OnEvent);
             Engine::EventManager::GetInstance()->AddListener(listenerClickEvent);
+        }
+
+        void Board::InitBoats()
+        {
+            m_Boats[0].SetName("Porte-Avion");
+            m_Boats[0].SetSize(5);
+
+            m_Boats[1].SetName("Croiseur");
+            m_Boats[1].SetSize(4);
+
+            m_Boats[2].SetName("Contre-Torpilleur");
+            m_Boats[2].SetSize(3);
+
+            m_Boats[3].SetName("Contre-Torpilleur");
+            m_Boats[3].SetSize(3);
+
+            m_Boats[4].SetName("Torpilleur");
+            m_Boats[4].SetSize(2);
         }
 
         Board::~Board()
@@ -45,10 +72,24 @@ namespace BatNav
                 return;
             }
 
-            SelectTile(cursorPosition);
+            if (GameManager::GetInstance()->IsPlacingBoats())
+            {
+                m_PlacedAllBoats = true;
+                for (int i = 0; i < m_Boats.size(); i++)
+                {
+                    if (!m_Boats[i].IsPlaced())
+                    {
+                        m_SelectedBoatIndex = i;
+                        m_PlacedAllBoats = false;
+                        break;
+                    }
+                }
+            }
+
+            ManageTileSelection(cursorPosition);
         }
 
-        void Board::SelectTile(const sf::Vector2f &cursorPosition)
+        void Board::ManageTileSelection(const sf::Vector2f &cursorPosition)
         {
             // Convert the cursor position to get the tile coordinates
             const float i = floorf(cursorPosition.x / static_cast<float>(TILE_SIZE.x));
@@ -58,17 +99,70 @@ namespace BatNav
             const size_t tileIndex = static_cast<size_t>(i) + static_cast<size_t>(j) * static_cast<size_t>(BOARD_SIZE.y);
 
             // If the tile is free
-            if (m_SelectedTileIndex != tileIndex && m_Board[tileIndex] == TileType::FREE)
+            if (m_SelectedTileIndex != tileIndex
+                && (m_Board[tileIndex] == TileType::WATER || m_Board[tileIndex] == TileType::BOAT))
             {
-                if (m_Board[m_SelectedTileIndex] != TileType::ATTACKED)
-                {
-                    m_Board[m_SelectedTileIndex] = TileType::FREE;
-                    UpdateSelectedTileOnBoard();
-                }
+                // Unselect previous selection
+                UnselectTiles();
 
-                m_Board[tileIndex] = TileType::SELECTED;
-                m_SelectedTileIndex = tileIndex;
-                UpdateSelectedTileOnBoard();
+                // Select the new one
+                SelectTiles(tileIndex);
+            }
+        }
+
+        int Board::GetBoatTileOffsetIndex(const bool isBoatVertical, int k, int startIndex) const
+        {
+            int offsetSelectIndex;
+
+            if (isBoatVertical)
+            {
+                offsetSelectIndex = startIndex + (k * BOARD_SIZE.x);
+            }
+            else
+            {
+                offsetSelectIndex = startIndex + k;
+            }
+
+            return offsetSelectIndex;
+        }
+
+        void Board::SelectTiles(const size_t tileIndex)
+        {
+            m_SelectedTileIndex = tileIndex;
+
+            if (GameManager::GetInstance()->IsPlacingBoats())
+            {
+                const Boat& boat = m_Boats[m_SelectedBoatIndex];
+                const bool isBoatVertical = boat.IsVertical();
+
+                for (int k = 0; k < boat.GetSize(); k++)
+                {
+                    int tileIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
+                    UpdateTileOnBoard(tileIndex, true);
+                }
+            }
+            else
+            {
+                UpdateTileOnBoard(m_SelectedTileIndex, true);
+            }
+        }
+
+        void Board::UnselectTiles()
+        {
+            if (GameManager::GetInstance()->IsPlacingBoats())
+            {
+                const Boat& boat = m_Boats[m_SelectedBoatIndex];
+                const bool isBoatVertical = boat.IsVertical();
+
+                for (int k = 0; k < boat.GetSize(); k++)
+                {
+                    int tileIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
+                    UpdateTileOnBoard(tileIndex);
+                }
+            }
+            else
+            {
+                UpdateTileOnBoard(m_SelectedTileIndex);
             }
         }
 
@@ -78,6 +172,8 @@ namespace BatNav
             states.transform *= getTransform(); // Apply the transform
             states.texture = &m_TileSet; // Apply the tileset texture
             target.draw(m_Vertices, states); // Draw the vertex array
+
+            // TODO : draw boats here
         }
 
         void Board::LoadBoard()
@@ -110,21 +206,25 @@ namespace BatNav
         {
             switch (m_Board[tileIndex])
             {
-                case TileType::FREE:
+                case TileType::WATER:
                     return 1;
 
-                case TileType::SELECTED:
-                    return 2;
-
-                case TileType::ATTACKED:
+                case TileType::MISSED:
                     return 3;
+
+                // TODO : Temporary representation (have a sprite in the Boat class)
+                case TileType::BOAT:
+                    return 4;
+
+                case TileType::TOUCHED:
+                    return 2;
 
                 default:
                     return 4;
             }
         }
 
-        void Board::CreateVertexQuad(unsigned int i, unsigned int j, const size_t tileIndex, int tu, int tv)
+        void Board::CreateVertexQuad(unsigned int i, unsigned int j, const size_t tileIndex, int tu, int tv, const bool isSelected)
         {
             sf::Vertex* quad = &m_Vertices[tileIndex * 4];
 
@@ -139,22 +239,38 @@ namespace BatNav
             quad[1].texCoords = sf::Vector2f(static_cast<float>((tu + 1) * TILE_SIZE.x), static_cast<float>(tv * TILE_SIZE.y));
             quad[2].texCoords = sf::Vector2f(static_cast<float>((tu + 1) * TILE_SIZE.x), static_cast<float>((tv + 1) * TILE_SIZE.y));
             quad[3].texCoords = sf::Vector2f(static_cast<float>(tu * TILE_SIZE.x), static_cast<float>((tv + 1) * TILE_SIZE.y));
+
+            // Highlights selected tile
+            if (isSelected)
+            {
+                quad[0].color = sf::Color::Yellow;
+                quad[1].color = sf::Color::Yellow;
+                quad[2].color = sf::Color::Yellow;
+                quad[3].color = sf::Color::Yellow;
+            }
+            else
+            {
+                quad[0].color = sf::Color::White;
+                quad[1].color = sf::Color::White;
+                quad[2].color = sf::Color::White;
+                quad[3].color = sf::Color::White;
+            }
         }
 
-        void Board::UpdateSelectedTileOnBoard()
+        void Board::UpdateTileOnBoard(const int tileIndex, const bool isSelected)
         {
             // Retrieve the coordinates
-            int i = m_SelectedTileIndex % BOARD_SIZE.y;
-            int j = m_SelectedTileIndex / BOARD_SIZE.y;
+            int i = tileIndex % BOARD_SIZE.y;
+            int j = tileIndex / BOARD_SIZE.y;
 
             // Retrieve the tile number
-            int tileNumber = GetTileNumberFromType(m_SelectedTileIndex);
+            int tileNumber = GetTileNumberFromType(tileIndex);
 
             // Find its position in the tileset texture
             int tu = tileNumber % (m_TileSet.getSize().x / TILE_SIZE.x);
             int tv = tileNumber / (m_TileSet.getSize().x / TILE_SIZE.x);
 
-            CreateVertexQuad(i, j, m_SelectedTileIndex, tu, tv);
+            CreateVertexQuad(i, j, tileIndex, tu, tv, isSelected);
         }
 
         void Board::OnEvent(const Engine::Event* evnt)
@@ -173,11 +289,77 @@ namespace BatNav
                         return;
                     }
 
-                    m_WasAttacked = true;
-                    m_Board[m_SelectedTileIndex] = TileType::ATTACKED;
-                    UpdateSelectedTileOnBoard();
+                    if (GameManager::GetInstance()->IsPlacingBoats())
+                    {
+                        PlaceBoat();
+                    }
+                    else
+                    {
+                        HandleAttack();
+                    }
                 }
             }
+        }
+
+        void Board::PlaceBoat()
+        {
+            Boat& boat = m_Boats[m_SelectedBoatIndex];
+            const bool isBoatVertical = boat.IsVertical();
+
+            for (int k = 0; k < boat.GetSize(); k++)
+            {
+                int tileIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
+                m_Board[tileIndex] = TileType::BOAT;
+                UpdateTileOnBoard(tileIndex);
+            }
+
+            boat.SetPositionIndex(m_SelectedTileIndex);
+            LOG_DEBUG("Placed boat of type " << boat.GetName() << " at index " << boat.GetPositionIndex());
+
+            boat.Place();
+        }
+
+        void Board::HandleAttack()
+        {
+            m_WasAttacked = true;
+
+            // Attack in water
+            if (m_Board[m_SelectedTileIndex] == TileType::WATER)
+            {
+                m_Board[m_SelectedTileIndex] = TileType::MISSED;
+                LOG_INFO("You missed!");
+            }
+            // Attack on a boat
+            else if (m_Board[m_SelectedTileIndex] == TileType::BOAT)
+            {
+                m_Board[m_SelectedTileIndex] = TileType::TOUCHED;
+
+                // Retrieve the boat
+                auto boat = std::find_if(m_Boats.begin(), m_Boats.end(), [&](const Boat& b)
+                {
+                    for (int k = 0; k < b.GetSize(); k++)
+                    {
+                        const int tileIndex = GetBoatTileOffsetIndex(b.IsVertical(), k, b.GetPositionIndex());
+
+                        if (m_SelectedTileIndex == tileIndex)
+                        {
+                            return true;
+                        }
+                    }
+                });
+
+                // Mark it as touched
+                boat->Touch();
+
+                // Check if he's sunk
+                if (boat->HasSunk())
+                {
+                    // TODO : Add score ?
+                    LOG_INFO("You sunk a boat of type : " << boat->GetName());
+                }
+            }
+
+            UpdateTileOnBoard(m_SelectedTileIndex);
         }
     }
 }

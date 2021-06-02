@@ -4,5 +4,7 @@
 
 #pragma once
 
+#include <SFML/Graphics.hpp>
+
 #include "../Engine/Log/Log.h"
 #include "../Engine/Event/EventManager.h"
