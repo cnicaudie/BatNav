@@ -38,8 +38,9 @@ namespace BatNav
             void CreateVertexQuad(unsigned int i, unsigned int j, const size_t tileIndex, int tu, int tv, const bool isSelected = false);
 
             void ManageTileSelection(const sf::Vector2f &cursorPosition);
-            int GetBoatTileOffsetIndex(const bool isBoatVertical, int k, int startIndex) const;
+            int GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const;
             void SelectTiles(const size_t tileIndex);
+            void CheckBoatPlacement(const Boat &boat, const  int tileIndex);
             void UnselectTiles();
 
             void OnEvent(const Engine::Event* evnt);
@@ -61,6 +62,7 @@ namespace BatNav
 
             bool m_IsCurrent;
             bool m_WasAttacked;
+            bool m_CanPlaceBoat;
             bool m_PlacedAllBoats;
 
             std::vector<Boat> m_Boats;

@@ -19,6 +19,7 @@ namespace BatNav
             , m_Boats(5)
             , m_IsCurrent(isCurrent)
             , m_WasAttacked(false)
+            , m_CanPlaceBoat(false)
             , m_PlacedAllBoats(false)
             , m_SelectedBoatIndex(0)
             , m_SelectedTileIndex(0)
@@ -98,6 +99,11 @@ namespace BatNav
             // Convert the coordinates to get the tile index on the board
             const size_t tileIndex = static_cast<size_t>(i) + static_cast<size_t>(j) * static_cast<size_t>(BOARD_SIZE.y);
 
+            if (tileIndex > BOARD_SIZE.x * BOARD_SIZE.y)
+            {
+                LOG_WARNING("Tile index out of bound");
+            }
+
             // If the tile is free
             if (m_SelectedTileIndex != tileIndex
                 && (m_Board[tileIndex] == TileType::WATER || m_Board[tileIndex] == TileType::BOAT))
@@ -110,7 +116,7 @@ namespace BatNav
             }
         }
 
-        int Board::GetBoatTileOffsetIndex(const bool isBoatVertical, int k, int startIndex) const
+        int Board::GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const
         {
             int offsetSelectIndex;
 
@@ -135,15 +141,43 @@ namespace BatNav
                 const Boat& boat = m_Boats[m_SelectedBoatIndex];
                 const bool isBoatVertical = boat.IsVertical();
 
+                m_CanPlaceBoat = true;
+
                 for (int k = 0; k < boat.GetSize(); k++)
                 {
                     int tileIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
+
+                    CheckBoatPlacement(boat, tileIndex);
+                    if (!m_CanPlaceBoat) break;
+
                     UpdateTileOnBoard(tileIndex, true);
                 }
             }
             else
             {
                 UpdateTileOnBoard(m_SelectedTileIndex, true);
+            }
+        }
+
+        void Board::CheckBoatPlacement(const Boat &boat, const int tileIndex)
+        {
+            int lineNumber = m_SelectedTileIndex / BOARD_SIZE.y;
+
+            if (m_Board[tileIndex] == TileType::BOAT)
+            {
+                m_CanPlaceBoat = false;
+            }
+
+            if (boat.IsVertical())
+            {
+                if (tileIndex >= BOARD_SIZE.x * BOARD_SIZE.y)
+                {
+                    m_CanPlaceBoat = false;
+                }
+            }
+            else if (tileIndex >= (lineNumber + 1) * BOARD_SIZE.y)
+            {
+                m_CanPlaceBoat = false;
             }
         }
 
@@ -279,23 +313,44 @@ namespace BatNav
             {
                 if (const Engine::ClickEvent* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt))
                 {
-                    LOG_DEBUG("Click event received !");
-                    const sf::Vector2f clickPosition = clickEvent->GetClickPosition();
-
-                    // Check that click happened within the board limits
-                    if (clickPosition.x < 0 || clickPosition.x > BOARD_SIZE.x * TILE_SIZE.x
-                        || clickPosition.y < 0 || clickPosition.y > BOARD_SIZE.y * TILE_SIZE.y)
+                    if (clickEvent->IsRightClick())
                     {
-                        return;
-                    }
+                        if (GameManager::GetInstance()->IsPlacingBoats())
+                        {
+                            Boat& boat = m_Boats[m_SelectedBoatIndex];
 
-                    if (GameManager::GetInstance()->IsPlacingBoats())
-                    {
-                        PlaceBoat();
+                            UnselectTiles();
+                            boat.Rotate();
+                            SelectTiles(m_SelectedTileIndex);
+                        }
                     }
                     else
                     {
-                        HandleAttack();
+                        const sf::Vector2f clickPosition = clickEvent->GetClickPosition();
+
+                        // Check that click happened within the board limits
+                        if (clickPosition.x < 0 || clickPosition.x > BOARD_SIZE.x * TILE_SIZE.x
+                            || clickPosition.y < 0 || clickPosition.y > BOARD_SIZE.y * TILE_SIZE.y)
+                        {
+                            LOG_WARNING("Click outside of the board : ignored.");
+                            return;
+                        }
+
+                        if (GameManager::GetInstance()->IsPlacingBoats())
+                        {
+                            if (m_CanPlaceBoat)
+                            {
+                                PlaceBoat();
+                            }
+                            else
+                            {
+                                LOG_WARNING("Can't place this boat here !");
+                            }
+                        }
+                        else
+                        {
+                            HandleAttack();
+                        }
                     }
                 }
             }

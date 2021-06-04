@@ -14,7 +14,8 @@ namespace BatNav
         class ClickEvent : public Event
         {
         public:
-            ClickEvent(const sf::Vector2f& clickPosition) : Event(EventType::CLICK), m_ClickPosition(clickPosition) {};
+            ClickEvent(const sf::Vector2f& clickPosition, const bool isRightClick = false)
+            : Event(EventType::CLICK), m_ClickPosition(clickPosition), m_IsRightClick(isRightClick) {};
 
             virtual bool operator==(const Event& other) const override
             {
@@ -27,9 +28,11 @@ namespace BatNav
             };
 
             inline const sf::Vector2f GetClickPosition() const { return m_ClickPosition; };
+            inline const bool IsRightClick() const { return m_IsRightClick; };
 
         private:
             sf::Vector2f m_ClickPosition;
+            bool m_IsRightClick;
         };
     }
 }

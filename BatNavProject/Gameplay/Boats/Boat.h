@@ -22,6 +22,7 @@ namespace BatNav
             inline void SetName(const std::string& name) { m_Name = name; }
             inline void SetSize(const int size) { m_Size = size; }
             inline void SetPositionIndex(const int index) { m_PositionIndex = index; }
+            inline void Rotate() { m_IsVertical = !m_IsVertical; }
 
             inline const std::string GetName() const { return m_Name; }
             inline const int GetSize() const { return m_Size; }

@@ -24,13 +24,11 @@ namespace BatNav
                 /*
                 case sf::Event::KeyPressed:
                 {
-                    AddAction(std::make_shared<KeyboardBinding>(event.key.code));
                     break;
                 }
 
                 case sf::Event::KeyReleased:
                 {
-                    RemoveAction(std::make_shared<KeyboardBinding>(event.key.code));
                     break;
                 }
                 */
@@ -38,12 +36,15 @@ namespace BatNav
 
                 case sf::Event::MouseButtonPressed:
                 {
-                    //AddAction(std::make_shared<MouseBinding>(event.mouseButton.button));
-
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
                         m_IsClicking = true;
                         m_MouseClickTimer.restart();
+                    }
+                    else if (event.mouseButton.button == sf::Mouse::Right)
+                    {
+                        std::shared_ptr<ClickEvent> clickEvent = std::make_shared<ClickEvent>(m_MousePosition, true);
+                        EventManager::GetInstance()->Fire(clickEvent);
                     }
 
                     break;
@@ -51,8 +52,6 @@ namespace BatNav
 
                 case sf::Event::MouseButtonReleased:
                 {
-                    //RemoveAction(std::make_shared<MouseBinding>(event.mouseButton.button));
-
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
                         const float CLICK_THRESHOLD = 0.5f;
@@ -69,7 +68,7 @@ namespace BatNav
                                 //LOG_DEBUG("Clicking at position : " << m_MousePosition.x << " / " << m_MousePosition.y);
 
                                 // Fire a click event
-                                std::shared_ptr<ClickEvent> clickEvent = std::make_shared<ClickEvent>(m_MousePosition);
+                                std::shared_ptr<ClickEvent> clickEvent = std::make_shared<ClickEvent>(m_MousePosition, false);
                                 EventManager::GetInstance()->Fire(clickEvent);
                             }
                             else
@@ -84,9 +83,6 @@ namespace BatNav
 
                 case sf::Event::MouseMoved:
                 {
-                    //std::shared_ptr<ActionEvent> actionEvent = std::make_shared<ActionEvent>(nullptr, 1.f, m_GameMousePosition, true, true);
-                    //EventManager::GetInstance()->Fire(actionEvent);
-
                     if (m_IsClicking)
                     {
                         //LOG_DEBUG("Dragging");
