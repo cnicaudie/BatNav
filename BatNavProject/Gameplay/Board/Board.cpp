@@ -6,6 +6,7 @@
 #include "Board.h"
 #include "../GameManager.h"
 #include "../../Engine/Event/EventTypes/ClickEvent.h"
+#include "../../Engine/Maths/Maths.h"
 
 namespace BatNav
 {
@@ -23,6 +24,7 @@ namespace BatNav
             , m_PlacedAllBoats(false)
             , m_SelectedBoatIndex(0)
             , m_SelectedTileIndex(0)
+            , m_PlacementMode(PlacementMode::PLAYER)
         {
             // Board loading
             if (!m_TileSet.loadFromFile("../Assets/tiles_test.png"))
@@ -55,14 +57,18 @@ namespace BatNav
                 return;
             }
 
-            if (GameManager::GetInstance()->IsPlacingBoats()
-                && !m_PlacedAllBoats
-                && m_Boats[m_SelectedBoatIndex].IsPlaced())
+            if (GameManager::GetInstance()->IsPlacingBoats())
             {
-                SelectBoatToPlace();
+                if (!m_PlacedAllBoats && m_PlacementMode == PlacementMode::PLAYER)
+                {
+                    SelectBoatToPlace();
+                    ManageTileSelection(cursorPosition);
+                }
             }
-
-            ManageTileSelection(cursorPosition);
+            else
+            {
+                ManageTileSelection(cursorPosition);
+            }
         }
 
         void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -209,18 +215,17 @@ namespace BatNav
             if (GameManager::GetInstance()->IsPlacingBoats())
             {
                 const Boat& boat = m_Boats[m_SelectedBoatIndex];
-                const bool isBoatVertical = boat.IsVertical();
 
-                m_CanPlaceBoat = true;
+                CheckBoatPlacement(boat);
 
-                for (int k = 0; k < boat.GetSize(); k++)
+                if (m_CanPlaceBoat)
                 {
-                    int boatTileOffsetIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
+                    for (int k = 0; k < boat.GetSize(); k++)
+                    {
+                        int boatTileOffsetIndex = GetBoatTileOffsetIndex(boat.IsVertical(), k, m_SelectedTileIndex);
 
-                    CheckBoatPlacement(boat, boatTileOffsetIndex);
-                    if (!m_CanPlaceBoat) break;
-
-                    UpdateTileOnBoard(boatTileOffsetIndex, true);
+                        UpdateTileOnBoard(boatTileOffsetIndex, true);
+                    }
                 }
             }
             else
@@ -283,39 +288,34 @@ namespace BatNav
             }
         }
 
-        void Board::CheckBoatPlacement(const Boat &boat, const int tileIndex)
+        void Board::CheckBoatPlacement(const Boat &boat)
         {
-            const int lineNumber = m_SelectedTileIndex / static_cast<int>(BOARD_SIZE.y);
+            m_CanPlaceBoat = true;
 
-            if (m_Board[tileIndex] == TileType::BOAT)
+            for (int k = 0; k < boat.GetSize(); k++)
             {
-                m_CanPlaceBoat = false;
-                return;
-            }
+                const int lineNumber = m_SelectedTileIndex / static_cast<int>(BOARD_SIZE.y);
+                const int boatTileOffsetIndex = GetBoatTileOffsetIndex(boat.IsVertical(), k, m_SelectedTileIndex);
 
-            if (boat.IsVertical())
-            {
-                if (tileIndex >= BOARD_SIZE.x * BOARD_SIZE.y)
+                if (m_Board[boatTileOffsetIndex] == TileType::BOAT
+                || (boat.IsVertical() && boatTileOffsetIndex >= BOARD_SIZE.x * BOARD_SIZE.y)
+                || (!boat.IsVertical() && boatTileOffsetIndex >= (lineNumber + 1) * BOARD_SIZE.y))
                 {
                     m_CanPlaceBoat = false;
                     return;
                 }
             }
-            else if (tileIndex >= (lineNumber + 1) * BOARD_SIZE.y)
-            {
-                m_CanPlaceBoat = false;
-                return;
-            }
         }
 
         void Board::PlaceBoat()
         {
+            UnselectTiles();
+
             Boat& boat = m_Boats[m_SelectedBoatIndex];
-            const bool isBoatVertical = boat.IsVertical();
 
             for (int k = 0; k < boat.GetSize(); k++)
             {
-                int tileIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
+                int tileIndex = GetBoatTileOffsetIndex(boat.IsVertical(), k, m_SelectedTileIndex);
                 m_Board[tileIndex] = TileType::BOAT;
                 UpdateTileOnBoard(tileIndex);
             }
@@ -324,6 +324,44 @@ namespace BatNav
             LOG_DEBUG("Placed boat of type " << boat.GetName() << " at index " << boat.GetPositionIndex());
 
             boat.Place();
+        }
+
+        void Board::PlaceAllBoatsRandom()
+        {
+            for (int i = 0; i < m_Boats.size(); i++)
+            {
+                m_SelectedBoatIndex = i;
+
+                Boat& boat = m_Boats[m_SelectedBoatIndex];
+                int xPosition, yPosition;
+
+                // Find a valid position randomly
+                do
+                {
+                    if (Engine::Maths::GetRandomBool()) boat.Rotate();
+
+                    if (boat.IsVertical())
+                    {
+                        xPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.x));
+                        yPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.y - boat.GetSize()));
+                    }
+                    else
+                    {
+                        xPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.x - boat.GetSize()));
+                        yPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.y));
+                    }
+
+                    m_SelectedTileIndex = xPosition * yPosition;
+
+                    CheckBoatPlacement(boat);
+
+                } while (!m_CanPlaceBoat);
+
+                // Place the boat
+                PlaceBoat();
+            }
+
+            m_PlacedAllBoats = true;
         }
 
         int Board::GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const
@@ -393,13 +431,20 @@ namespace BatNav
 
                         if (GameManager::GetInstance()->IsPlacingBoats())
                         {
-                            if (m_CanPlaceBoat)
+                            if (m_PlacementMode == PlacementMode::RANDOM)
                             {
-                                PlaceBoat();
+                                PlaceAllBoatsRandom();
                             }
-                            else
+                            else if (m_PlacementMode == PlacementMode::PLAYER)
                             {
-                                LOG_WARNING("Can't place this boat here !");
+                                if (m_CanPlaceBoat)
+                                {
+                                    PlaceBoat();
+                                }
+                                else
+                                {
+                                    LOG_WARNING("Can't place this boat here !");
+                                }
                             }
                         }
                         else

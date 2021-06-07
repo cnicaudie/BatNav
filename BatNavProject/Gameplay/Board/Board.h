@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <array>
-#include "../GameplayIncludes.h"
+
 #include "../../Engine/Event/EventTypes/Event.h"
 #include "../Boats/Boat.h"
 
@@ -45,8 +45,9 @@ namespace BatNav
             // Boat management
             void InitBoats();
             void SelectBoatToPlace();
-            void CheckBoatPlacement(const Boat &boat, const  int tileIndex);
+            void CheckBoatPlacement(const Boat &boat);
             void PlaceBoat();
+            void PlaceAllBoatsRandom();
             int GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const;
             Boat* GetBoatFromTileIndex();
 
@@ -63,6 +64,12 @@ namespace BatNav
                 BOAT        = 2,
                 TOUCHED     = 3
             };
+
+            enum class PlacementMode
+            {
+                RANDOM  = 0,
+                PLAYER  = 1
+            } m_PlacementMode;
 
             int m_SelectedTileIndex;
             int m_SelectedBoatIndex;
