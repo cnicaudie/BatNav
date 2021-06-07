@@ -16,7 +16,7 @@ namespace BatNav
 
         Board::Board(const bool isCurrent)
             : m_Board(BOARD_SIZE.x * BOARD_SIZE.y, TileType::WATER)
-            , m_Boats(5)
+            , m_Boats()
             , m_IsCurrent(isCurrent)
             , m_WasAttacked(false)
             , m_CanPlaceBoat(false)
@@ -401,6 +401,8 @@ namespace BatNav
                             return true;
                         }
                     }
+
+                    return false;
                 });
 
                 // Mark it as touched

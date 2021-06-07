@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <array>
 #include "../GameplayIncludes.h"
 #include "../../Engine/Event/EventTypes/Event.h"
 #include "../Boats/Boat.h"
@@ -65,7 +66,7 @@ namespace BatNav
             bool m_CanPlaceBoat;
             bool m_PlacedAllBoats;
 
-            std::vector<Boat> m_Boats;
+            std::array<Boat, 5> m_Boats;
 
             // Board representation
             std::vector<TileType> m_Board;
