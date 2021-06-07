@@ -18,7 +18,7 @@ namespace BatNav
         {
         public:
             EventListener(T* instance, std::function<void(T*, EventT*)> callbackFunction) : m_Instance(instance), m_CallbackFunction(callbackFunction) {};
-            ~EventListener() = default;
+            virtual ~EventListener() = default;
 
             bool operator==(IEventListener* other) const override
             {
