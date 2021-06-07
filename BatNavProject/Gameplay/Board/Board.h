@@ -31,21 +31,27 @@ namespace BatNav
             inline void ResetAttack() { m_WasAttacked = false; }
 
         private:
-            void InitBoats();
+            // Board loading/update
             void LoadBoard();
             void UpdateTileOnBoard(const int tileIndex, const bool isSelected = false);
-
             int GetTileNumberFromType(const size_t tileIndex);
             void CreateVertexQuad(unsigned int i, unsigned int j, const size_t tileIndex, int tu, int tv, const bool isSelected = false);
 
+            // Tile selection
             void ManageTileSelection(const sf::Vector2f &cursorPosition);
-            int GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const;
             void SelectTiles(const size_t tileIndex);
-            void CheckBoatPlacement(const Boat &boat, const  int tileIndex);
             void UnselectTiles();
 
-            void OnEvent(const Engine::Event* evnt);
+            // Boat management
+            void InitBoats();
+            void SelectBoatToPlace();
+            void CheckBoatPlacement(const Boat &boat, const  int tileIndex);
             void PlaceBoat();
+            int GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const;
+            Boat* GetBoatFromTileIndex();
+
+            // Events management
+            void OnEvent(const Engine::Event* evnt);
             void HandleAttack();
 
             //====================//

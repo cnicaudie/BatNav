@@ -40,24 +40,6 @@ namespace BatNav
             Engine::EventManager::GetInstance()->AddListener(listenerClickEvent);
         }
 
-        void Board::InitBoats()
-        {
-            m_Boats[0].SetName("Porte-Avion");
-            m_Boats[0].SetSize(5);
-
-            m_Boats[1].SetName("Croiseur");
-            m_Boats[1].SetSize(4);
-
-            m_Boats[2].SetName("Contre-Torpilleur");
-            m_Boats[2].SetSize(3);
-
-            m_Boats[3].SetName("Contre-Torpilleur");
-            m_Boats[3].SetSize(3);
-
-            m_Boats[4].SetName("Torpilleur");
-            m_Boats[4].SetSize(2);
-        }
-
         Board::~Board()
         {
             Engine::EventListener<Board, Engine::ClickEvent> listenerClickEvent(this, &Board::OnEvent);
@@ -67,137 +49,20 @@ namespace BatNav
         void Board::Update(const sf::Vector2f& cursorPosition)
         {
             if (m_WasAttacked || !m_IsCurrent
-                || cursorPosition.x < 0 || cursorPosition.x > BOARD_SIZE.x * TILE_SIZE.x
-                || cursorPosition.y < 0 || cursorPosition.y > BOARD_SIZE.y * TILE_SIZE.y)
+                || cursorPosition.x < 0.f || cursorPosition.x > static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
+                || cursorPosition.y < 0.f || cursorPosition.y > static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
             {
                 return;
             }
 
-            if (GameManager::GetInstance()->IsPlacingBoats())
+            if (GameManager::GetInstance()->IsPlacingBoats()
+                && !m_PlacedAllBoats
+                && m_Boats[m_SelectedBoatIndex].IsPlaced())
             {
-                m_PlacedAllBoats = true;
-                for (int i = 0; i < m_Boats.size(); i++)
-                {
-                    if (!m_Boats[i].IsPlaced())
-                    {
-                        m_SelectedBoatIndex = i;
-                        m_PlacedAllBoats = false;
-                        break;
-                    }
-                }
+                SelectBoatToPlace();
             }
 
             ManageTileSelection(cursorPosition);
-        }
-
-        void Board::ManageTileSelection(const sf::Vector2f &cursorPosition)
-        {
-            // Convert the cursor position to get the tile coordinates
-            const float i = floorf(cursorPosition.x / static_cast<float>(TILE_SIZE.x));
-            const float j = floorf(cursorPosition.y / static_cast<float>(TILE_SIZE.y));
-
-            // Convert the coordinates to get the tile index on the board
-            const size_t tileIndex = static_cast<size_t>(i) + static_cast<size_t>(j) * static_cast<size_t>(BOARD_SIZE.y);
-
-            if (tileIndex > BOARD_SIZE.x * BOARD_SIZE.y)
-            {
-                LOG_WARNING("Tile index out of bound");
-            }
-
-            // If the tile is free
-            if (m_SelectedTileIndex != tileIndex
-                && (m_Board[tileIndex] == TileType::WATER || m_Board[tileIndex] == TileType::BOAT))
-            {
-                // Unselect previous selection
-                UnselectTiles();
-
-                // Select the new one
-                SelectTiles(tileIndex);
-            }
-        }
-
-        int Board::GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const
-        {
-            int offsetSelectIndex;
-
-            if (isBoatVertical)
-            {
-                offsetSelectIndex = startIndex + (k * BOARD_SIZE.x);
-            }
-            else
-            {
-                offsetSelectIndex = startIndex + k;
-            }
-
-            return offsetSelectIndex;
-        }
-
-        void Board::SelectTiles(const size_t tileIndex)
-        {
-            m_SelectedTileIndex = tileIndex;
-
-            if (GameManager::GetInstance()->IsPlacingBoats())
-            {
-                const Boat& boat = m_Boats[m_SelectedBoatIndex];
-                const bool isBoatVertical = boat.IsVertical();
-
-                m_CanPlaceBoat = true;
-
-                for (int k = 0; k < boat.GetSize(); k++)
-                {
-                    int tileIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
-
-                    CheckBoatPlacement(boat, tileIndex);
-                    if (!m_CanPlaceBoat) break;
-
-                    UpdateTileOnBoard(tileIndex, true);
-                }
-            }
-            else
-            {
-                UpdateTileOnBoard(m_SelectedTileIndex, true);
-            }
-        }
-
-        void Board::CheckBoatPlacement(const Boat &boat, const int tileIndex)
-        {
-            int lineNumber = m_SelectedTileIndex / BOARD_SIZE.y;
-
-            if (m_Board[tileIndex] == TileType::BOAT)
-            {
-                m_CanPlaceBoat = false;
-            }
-
-            if (boat.IsVertical())
-            {
-                if (tileIndex >= BOARD_SIZE.x * BOARD_SIZE.y)
-                {
-                    m_CanPlaceBoat = false;
-                }
-            }
-            else if (tileIndex >= (lineNumber + 1) * BOARD_SIZE.y)
-            {
-                m_CanPlaceBoat = false;
-            }
-        }
-
-        void Board::UnselectTiles()
-        {
-            if (GameManager::GetInstance()->IsPlacingBoats())
-            {
-                const Boat& boat = m_Boats[m_SelectedBoatIndex];
-                const bool isBoatVertical = boat.IsVertical();
-
-                for (int k = 0; k < boat.GetSize(); k++)
-                {
-                    int tileIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
-                    UpdateTileOnBoard(tileIndex);
-                }
-            }
-            else
-            {
-                UpdateTileOnBoard(m_SelectedTileIndex);
-            }
         }
 
         void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -209,6 +74,8 @@ namespace BatNav
 
             // TODO : draw boats here
         }
+
+        // ========== BOARD LOADING / UPDATE
 
         void Board::LoadBoard()
         {
@@ -227,13 +94,29 @@ namespace BatNav
                     int tileNumber = GetTileNumberFromType(tileIndex);
 
                     // Find its position in the tileset texture
-                    int tu = tileNumber % (m_TileSet.getSize().x / TILE_SIZE.x);
-                    int tv = tileNumber / (m_TileSet.getSize().x / TILE_SIZE.x);
+                    int tu = tileNumber % static_cast<int>(m_TileSet.getSize().x / TILE_SIZE.x);
+                    int tv = tileNumber / static_cast<int>(m_TileSet.getSize().x / TILE_SIZE.x);
 
                     // Get a pointer to the current tile's quad
                     CreateVertexQuad(i, j, tileIndex, tu, tv);
                 }
             }
+        }
+
+        void Board::UpdateTileOnBoard(const int tileIndex, const bool isSelected)
+        {
+            // Retrieve the coordinates
+            int i = tileIndex % static_cast<int>(BOARD_SIZE.y);
+            int j = tileIndex / static_cast<int>(BOARD_SIZE.y);
+
+            // Retrieve the tile number
+            int tileNumber = GetTileNumberFromType(tileIndex);
+
+            // Find its position in the tileset texture
+            int tu = tileNumber % static_cast<int>(m_TileSet.getSize().x / TILE_SIZE.x);
+            int tv = tileNumber / static_cast<int>(m_TileSet.getSize().x / TILE_SIZE.x);
+
+            CreateVertexQuad(i, j, tileIndex, tu, tv, isSelected);
         }
 
         int Board::GetTileNumberFromType(const size_t tileIndex)
@@ -246,7 +129,7 @@ namespace BatNav
                 case TileType::MISSED:
                     return 3;
 
-                // TODO : Temporary representation (have a sprite in the Boat class)
+                    // TODO : Temporary representation (have a sprite in the Boat class)
                 case TileType::BOAT:
                     return 4;
 
@@ -291,27 +174,199 @@ namespace BatNav
             }
         }
 
-        void Board::UpdateTileOnBoard(const int tileIndex, const bool isSelected)
+        // ========== TILE SELECTION
+
+        void Board::ManageTileSelection(const sf::Vector2f &cursorPosition)
         {
-            // Retrieve the coordinates
-            int i = tileIndex % BOARD_SIZE.y;
-            int j = tileIndex / BOARD_SIZE.y;
+            // Convert the cursor position to get the tile coordinates
+            const float i = floorf(cursorPosition.x / static_cast<float>(TILE_SIZE.x));
+            const float j = floorf(cursorPosition.y / static_cast<float>(TILE_SIZE.y));
 
-            // Retrieve the tile number
-            int tileNumber = GetTileNumberFromType(tileIndex);
+            // Convert the coordinates to get the tile index on the board
+            const size_t tileIndex = static_cast<size_t>(i) + static_cast<size_t>(j) * static_cast<size_t>(BOARD_SIZE.y);
 
-            // Find its position in the tileset texture
-            int tu = tileNumber % (m_TileSet.getSize().x / TILE_SIZE.x);
-            int tv = tileNumber / (m_TileSet.getSize().x / TILE_SIZE.x);
+            if (tileIndex > BOARD_SIZE.x * BOARD_SIZE.y)
+            {
+                LOG_WARNING("Tile index out of bound");
+            }
 
-            CreateVertexQuad(i, j, tileIndex, tu, tv, isSelected);
+            // If the tile is free
+            if (m_SelectedTileIndex != tileIndex
+                && (m_Board[tileIndex] == TileType::WATER || m_Board[tileIndex] == TileType::BOAT))
+            {
+                // Unselect previous selection
+                UnselectTiles();
+
+                // Select the new one
+                SelectTiles(tileIndex);
+            }
         }
+
+        void Board::SelectTiles(const size_t tileIndex)
+        {
+            m_SelectedTileIndex = tileIndex;
+
+            if (GameManager::GetInstance()->IsPlacingBoats())
+            {
+                const Boat& boat = m_Boats[m_SelectedBoatIndex];
+                const bool isBoatVertical = boat.IsVertical();
+
+                m_CanPlaceBoat = true;
+
+                for (int k = 0; k < boat.GetSize(); k++)
+                {
+                    int boatTileOffsetIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
+
+                    CheckBoatPlacement(boat, boatTileOffsetIndex);
+                    if (!m_CanPlaceBoat) break;
+
+                    UpdateTileOnBoard(boatTileOffsetIndex, true);
+                }
+            }
+            else
+            {
+                UpdateTileOnBoard(m_SelectedTileIndex, true);
+            }
+        }
+
+        void Board::UnselectTiles()
+        {
+            if (GameManager::GetInstance()->IsPlacingBoats())
+            {
+                const Boat& boat = m_Boats[m_SelectedBoatIndex];
+                const bool isBoatVertical = boat.IsVertical();
+
+                for (int k = 0; k < boat.GetSize(); k++)
+                {
+                    int tileIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
+                    UpdateTileOnBoard(tileIndex);
+                }
+            }
+            else
+            {
+                UpdateTileOnBoard(m_SelectedTileIndex);
+            }
+        }
+
+        // ========== BOAT MANAGEMENT
+
+        void Board::InitBoats()
+        {
+            m_Boats[0].SetName("Porte-Avion");
+            m_Boats[0].SetSize(5);
+
+            m_Boats[1].SetName("Croiseur");
+            m_Boats[1].SetSize(4);
+
+            m_Boats[2].SetName("Contre-Torpilleur");
+            m_Boats[2].SetSize(3);
+
+            m_Boats[3].SetName("Contre-Torpilleur");
+            m_Boats[3].SetSize(3);
+
+            m_Boats[4].SetName("Torpilleur");
+            m_Boats[4].SetSize(2);
+        }
+
+        void Board::SelectBoatToPlace()
+        {
+            m_PlacedAllBoats = true;
+
+            for (int i = 0; i < m_Boats.size(); i++)
+            {
+                if (!m_Boats[i].IsPlaced())
+                {
+                    m_SelectedBoatIndex = i;
+                    m_PlacedAllBoats = false;
+                    break;
+                }
+            }
+        }
+
+        void Board::CheckBoatPlacement(const Boat &boat, const int tileIndex)
+        {
+            const int lineNumber = m_SelectedTileIndex / static_cast<int>(BOARD_SIZE.y);
+
+            if (m_Board[tileIndex] == TileType::BOAT)
+            {
+                m_CanPlaceBoat = false;
+                return;
+            }
+
+            if (boat.IsVertical())
+            {
+                if (tileIndex >= BOARD_SIZE.x * BOARD_SIZE.y)
+                {
+                    m_CanPlaceBoat = false;
+                    return;
+                }
+            }
+            else if (tileIndex >= (lineNumber + 1) * BOARD_SIZE.y)
+            {
+                m_CanPlaceBoat = false;
+                return;
+            }
+        }
+
+        void Board::PlaceBoat()
+        {
+            Boat& boat = m_Boats[m_SelectedBoatIndex];
+            const bool isBoatVertical = boat.IsVertical();
+
+            for (int k = 0; k < boat.GetSize(); k++)
+            {
+                int tileIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
+                m_Board[tileIndex] = TileType::BOAT;
+                UpdateTileOnBoard(tileIndex);
+            }
+
+            boat.SetPositionIndex(m_SelectedTileIndex);
+            LOG_DEBUG("Placed boat of type " << boat.GetName() << " at index " << boat.GetPositionIndex());
+
+            boat.Place();
+        }
+
+        int Board::GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const
+        {
+            int offsetSelectIndex;
+
+            if (isBoatVertical)
+            {
+                offsetSelectIndex = startIndex + static_cast<int>(k * BOARD_SIZE.x);
+            }
+            else
+            {
+                offsetSelectIndex = startIndex + k;
+            }
+
+            return offsetSelectIndex;
+        }
+
+        Boat* Board::GetBoatFromTileIndex()
+        {
+            return std::find_if(m_Boats.begin(), m_Boats.end(), [&](const Boat& b)
+            {
+                for (int k = 0; k < b.GetSize(); k++)
+                {
+                    const int tileIndex = GetBoatTileOffsetIndex(b.IsVertical(), k, b.GetPositionIndex());
+
+                    if (m_SelectedTileIndex == tileIndex)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+        }
+
+        // ========== EVENTS MANAGEMENT
 
         void Board::OnEvent(const Engine::Event* evnt)
         {
             if (m_IsCurrent && !m_WasAttacked)
             {
-                if (const Engine::ClickEvent* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt))
+                if (const auto* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt))
                 {
                     if (clickEvent->IsRightClick())
                     {
@@ -329,8 +384,8 @@ namespace BatNav
                         const sf::Vector2f clickPosition = clickEvent->GetClickPosition();
 
                         // Check that click happened within the board limits
-                        if (clickPosition.x < 0 || clickPosition.x > BOARD_SIZE.x * TILE_SIZE.x
-                            || clickPosition.y < 0 || clickPosition.y > BOARD_SIZE.y * TILE_SIZE.y)
+                        if (clickPosition.x < 0.f || clickPosition.x > static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
+                            || clickPosition.y < 0.f || clickPosition.y > static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
                         {
                             LOG_WARNING("Click outside of the board : ignored.");
                             return;
@@ -356,24 +411,6 @@ namespace BatNav
             }
         }
 
-        void Board::PlaceBoat()
-        {
-            Boat& boat = m_Boats[m_SelectedBoatIndex];
-            const bool isBoatVertical = boat.IsVertical();
-
-            for (int k = 0; k < boat.GetSize(); k++)
-            {
-                int tileIndex = GetBoatTileOffsetIndex(isBoatVertical, k, m_SelectedTileIndex);
-                m_Board[tileIndex] = TileType::BOAT;
-                UpdateTileOnBoard(tileIndex);
-            }
-
-            boat.SetPositionIndex(m_SelectedTileIndex);
-            LOG_DEBUG("Placed boat of type " << boat.GetName() << " at index " << boat.GetPositionIndex());
-
-            boat.Place();
-        }
-
         void Board::HandleAttack()
         {
             m_WasAttacked = true;
@@ -390,20 +427,7 @@ namespace BatNav
                 m_Board[m_SelectedTileIndex] = TileType::TOUCHED;
 
                 // Retrieve the boat
-                auto boat = std::find_if(m_Boats.begin(), m_Boats.end(), [&](const Boat& b)
-                {
-                    for (int k = 0; k < b.GetSize(); k++)
-                    {
-                        const int tileIndex = GetBoatTileOffsetIndex(b.IsVertical(), k, b.GetPositionIndex());
-
-                        if (m_SelectedTileIndex == tileIndex)
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                });
+                Boat* boat = GetBoatFromTileIndex();
 
                 // Mark it as touched
                 boat->Touch();
