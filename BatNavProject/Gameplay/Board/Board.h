@@ -24,7 +24,7 @@ namespace BatNav
             void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
             inline bool IsCurrent() const { return m_IsCurrent; }
-            inline bool WasAttacked() const { return m_WasAttacked; }
+            inline bool WasAttacked() const { return m_WasAttacked && !m_SunkAllBoats; }
             inline bool PlacedAllBoats() const { return m_PlacedAllBoats && m_ConfirmedPlacement; }
             inline void SetToCurrent() { m_IsCurrent = true; }
             inline void ResetCurrent() { m_IsCurrent = false; }
@@ -74,8 +74,9 @@ namespace BatNav
 
             bool m_CanPlaceBoat;
             bool m_PlacedAllBoats;
+            bool m_SunkAllBoats;
             bool m_ConfirmedPlacement;
-
+            int m_SunkBoats;
             std::array<Boat, 5> m_Boats;
 
             // Board representation

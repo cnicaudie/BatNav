@@ -23,7 +23,9 @@ namespace BatNav
             , m_WasAttacked(false)
             , m_CanPlaceBoat(false)
             , m_PlacedAllBoats(false)
+            , m_SunkAllBoats(false)
             , m_ConfirmedPlacement(false)
+            , m_SunkBoats(0)
             , m_SelectedBoatIndex(0)
             , m_SelectedTileIndex(0)
         {
@@ -55,6 +57,17 @@ namespace BatNav
 
         void Board::Update(const sf::Vector2f& cursorPosition)
         {
+            if (m_SunkAllBoats)
+            {
+                LOG_INFO("All boats were sunk !");
+
+                std::shared_ptr<Engine::Event> evnt = std::make_shared<Engine::Event>(Engine::EventType::END_GAME);
+                Engine::EventManager::GetInstance()->Fire(evnt);
+
+                m_SunkAllBoats = false;
+                return;
+            }
+
             if (m_WasAttacked || !m_IsCurrent
                 || cursorPosition.x < 0.f || cursorPosition.x > static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
                 || cursorPosition.y < 0.f || cursorPosition.y > static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
@@ -447,8 +460,15 @@ namespace BatNav
                             break;
 
                         case BoardStatus::BOAT_PLACEMENT_CONFIRM:
-                            UnselectTiles();
-                            m_ConfirmedPlacement = true;
+                            if (m_PlacedAllBoats)
+                            {
+                                UnselectTiles();
+                                m_ConfirmedPlacement = true;
+                            }
+                            else
+                            {
+                                LOG_WARNING("Please place all boats before confirming placement.");
+                            }
                             break;
                     }
                 }
@@ -512,34 +532,49 @@ namespace BatNav
 
         void Board::HandleAttack()
         {
-            m_WasAttacked = true;
-
-            // Attack in water
-            if (m_Board[m_SelectedTileIndex] == TileType::WATER)
+            if (m_Board[m_SelectedTileIndex] == TileType::TOUCHED
+                || m_Board[m_SelectedTileIndex] == TileType::MISSED)
             {
-                m_Board[m_SelectedTileIndex] = TileType::MISSED;
-                LOG_INFO("You missed!");
+                LOG_WARNING("Can't attack a already attacked tile");
             }
-            // Attack on a boat
-            else if (m_Board[m_SelectedTileIndex] == TileType::BOAT)
+            else
             {
-                m_Board[m_SelectedTileIndex] = TileType::TOUCHED;
+                m_WasAttacked = true;
 
-                // Retrieve the boat
-                Boat* boat = GetBoatFromTileIndex();
-
-                // Mark it as touched
-                boat->Touch();
-
-                // Check if he's sunk
-                if (boat->HasSunk())
+                // Attack in water
+                if (m_Board[m_SelectedTileIndex] == TileType::WATER)
                 {
-                    // TODO : Add score ?
-                    LOG_INFO("You sunk a boat of type : " << boat->GetName());
+                    m_Board[m_SelectedTileIndex] = TileType::MISSED;
+                    LOG_INFO("You missed!");
                 }
-            }
+                // Attack on a boat
+                else if (m_Board[m_SelectedTileIndex] == TileType::BOAT)
+                {
+                    m_Board[m_SelectedTileIndex] = TileType::TOUCHED;
 
-            UpdateTileOnBoard(m_SelectedTileIndex);
+                    // Retrieve the boat
+                    Boat* boat = GetBoatFromTileIndex();
+
+                    // Mark it as touched
+                    boat->Touch();
+
+                    // Check if he's sunk
+                    if (boat->HasSunk())
+                    {
+                        // TODO : Add score ?
+                        LOG_INFO("You sunk a boat of type : " << boat->GetName());
+
+                        m_SunkBoats += 1;
+
+                        if (m_SunkBoats == m_Boats.size())
+                        {
+                            m_SunkAllBoats = true;
+                        }
+                    }
+                }
+
+                UpdateTileOnBoard(m_SelectedTileIndex);
+            }
         }
     }
 }
