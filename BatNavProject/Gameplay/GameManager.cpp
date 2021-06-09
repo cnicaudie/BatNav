@@ -4,6 +4,7 @@
 
 #include "GameManager.h"
 #include "GameplayIncludes.h"
+#include "../UI/UIManager.h"
 
 namespace BatNav
 {
@@ -25,6 +26,7 @@ namespace BatNav
 
         GameManager::GameManager()
                 : Game{ "BatNav (WIP)" }
+                , m_UIManager{ std::make_unique<UI::UIManager>(&m_Window) }
                 , m_CurrentState(GameState::NOT_STARTED)
                 , m_BoardA(true)
                 , m_BoardB(false)
@@ -49,6 +51,7 @@ namespace BatNav
 
             Engine::EventManager::GetInstance()->Update();
             m_InputManager->UpdateMousePosition(mousePosition);
+            m_UIManager->Update(deltaTime);
 
             m_BoardB.Update(mousePosition);
             m_BoardA.Update(mousePosition);
@@ -118,6 +121,8 @@ namespace BatNav
             {
                 target.draw(m_BoardB);
             }
+
+            target.draw(*m_UIManager);
         }
     }
 }

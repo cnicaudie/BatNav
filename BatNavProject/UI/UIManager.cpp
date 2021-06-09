@@ -1,0 +1,223 @@
+//
+// Created by Charlotte Nicaudie on 09/06/2021.
+//
+
+#include "UIManager.h"
+#include "../Engine/Event/EventManager.h"
+#include "../Engine/Event/Listener/EventListener.h"
+#include "../Engine/Log/Log.h"
+
+namespace BatNav
+{
+    namespace UI
+    {
+        static const sf::Vector2f BUTTON_SIZE{ 150.f, 50.f };
+
+        UIManager::UIManager(sf::RenderWindow* window)
+                : m_Window(window)
+                //, m_GUIView(sf::FloatRect(0.f, 0.f, static_cast<float>(window->getSize().x), static_cast<float>(window->getSize().y)))
+                , m_ToggleMainMenu(true)
+                , m_ToggleBoatPlacementMenu(true)
+                , m_IsPlayingEndGame(false)
+                , m_WentBackToMenu(false)
+                , m_StartButton(BUTTON_SIZE)
+                , m_CloseButton(BUTTON_SIZE)
+                , m_ConfirmButton(BUTTON_SIZE)
+                , m_RandomButton(BUTTON_SIZE)
+                , m_RestartButton(BUTTON_SIZE)
+                , m_BackToMenuButton(BUTTON_SIZE)
+        {
+            const sf::Vector2f WINDOW_CENTER{ window->getView().getCenter() };
+
+            m_MainFont.loadFromFile("../Assets/Avenir.ttc");
+
+            InitTexts(WINDOW_CENTER);
+            InitButtons(WINDOW_CENTER);
+
+            // Configure EventListeners
+            Engine::EventListener<UIManager, Engine::Event> listenerGameOver(this, &UIManager::OnEvent);
+            Engine::EventManager::GetInstance()->AddListener(listenerGameOver);
+        }
+
+        void UIManager::InitTexts(const sf::Vector2f& WINDOW_CENTER)
+        {
+            // === In Game UI
+
+            // === Main Menu
+            m_MainTitle.setFont(m_MainFont);
+            m_MainTitle.setCharacterSize(80);
+            m_MainTitle.setFillColor(sf::Color::White);
+            m_MainTitle.setString("Seek A Soul");
+            m_MainTitle.setStyle(sf::Text::Bold);
+            m_MainTitle.setPosition(WINDOW_CENTER.x - (m_MainTitle.getGlobalBounds().width / 2), WINDOW_CENTER.y * 0.15f);
+
+            // === End Level/Game Menu
+
+            m_EndGameText.setFont(m_MainFont);
+            m_EndGameText.setCharacterSize(50);
+            m_EndGameText.setFillColor(sf::Color::Green);
+            m_EndGameText.setString("YOU WON !!!");
+            m_EndGameText.setStyle(sf::Text::Bold);
+            m_EndGameText.setPosition(WINDOW_CENTER.x - (m_EndGameText.getGlobalBounds().width / 2)
+                    , WINDOW_CENTER.y - (m_EndGameText.getGlobalBounds().height / 2));
+        }
+
+        void UIManager::InitButtons(const sf::Vector2f& WINDOW_CENTER)
+        {
+            const float BUTTONS_OFFSET = 100.f;
+
+            // === Main Menu
+
+            const sf::Vector2f startButtonPosition{ WINDOW_CENTER.x, WINDOW_CENTER.y - BUTTONS_OFFSET };
+            m_StartButton.SetButtonPosition(startButtonPosition);
+            m_StartButton.SetButtonTextFont(m_MainFont);
+            m_StartButton.SetButtonTextString("Start");
+            m_StartButton.SetButtonTextPosition(startButtonPosition);
+
+            const sf::Vector2f closeButtonPosition{ WINDOW_CENTER.x, WINDOW_CENTER.y + BUTTONS_OFFSET };
+            m_CloseButton.SetButtonPosition(closeButtonPosition);
+            m_CloseButton.SetButtonTextFont(m_MainFont);
+            m_CloseButton.SetButtonTextString("Quit");
+            m_CloseButton.SetButtonTextPosition(closeButtonPosition);
+
+            // === Boat Placement Menu
+
+            const sf::Vector2f randomButtonPosition{ WINDOW_CENTER.x + BUTTONS_OFFSET, WINDOW_CENTER.y - 2 * BUTTONS_OFFSET };
+            m_RandomButton.SetButtonPosition(randomButtonPosition);
+            m_RandomButton.SetButtonTextFont(m_MainFont);
+            m_RandomButton.SetButtonTextString("Random");
+            m_RandomButton.SetButtonTextPosition(randomButtonPosition);
+
+            const sf::Vector2f confirmButtonPosition{ WINDOW_CENTER.x + BUTTONS_OFFSET, WINDOW_CENTER.y - BUTTONS_OFFSET };
+            m_ConfirmButton.SetButtonPosition(confirmButtonPosition);
+            m_ConfirmButton.SetButtonTextFont(m_MainFont);
+            m_ConfirmButton.SetButtonTextString("Confirm");
+            m_ConfirmButton.SetButtonTextPosition(confirmButtonPosition);
+
+            // === End Level/Game Menu
+
+            const sf::Vector2f restartButtonPosition{ WINDOW_CENTER.x - 2 * BUTTONS_OFFSET, WINDOW_CENTER.y + BUTTONS_OFFSET };
+            m_RestartButton.SetButtonPosition(restartButtonPosition);
+            m_RestartButton.SetButtonTextFont(m_MainFont);
+            m_RestartButton.SetButtonTextString("Restart");
+            m_RestartButton.SetButtonTextPosition(restartButtonPosition);
+
+            const sf::Vector2f backButtonPosition{ WINDOW_CENTER.x + 2 * BUTTONS_OFFSET, WINDOW_CENTER.y + BUTTONS_OFFSET };
+            m_BackToMenuButton.SetButtonPosition(backButtonPosition);
+            m_BackToMenuButton.SetButtonTextFont(m_MainFont);
+            m_BackToMenuButton.SetButtonTextString("Back to menu");
+            m_BackToMenuButton.SetButtonTextPosition(backButtonPosition);
+        }
+
+        UIManager::~UIManager()
+        {
+            // Remove listeners
+            Engine::EventListener<UIManager, Engine::Event> listenerGameOver(this, &UIManager::OnEvent);
+            Engine::EventManager::GetInstance()->RemoveListener(listenerGameOver);
+        }
+
+        void UIManager::Update(float deltaTime)
+        {
+            // Update the view
+            //m_Window->setView(m_GUIView);
+
+            UpdateTexts();
+            ManageButtons();
+        }
+
+        void UIManager::UpdateTexts()
+        {
+            // TODO : Score ?
+        }
+
+        void UIManager::ManageButtons()
+        {
+            /*
+            if (m_ToggleMainMenu)
+            {
+                if (m_StartButton.WasClicked())
+                {
+                    LOG_INFO("Starting game...");
+                    m_StartButton.ResetClickStatus();
+                    m_ToggleMainMenu = false;
+
+                    if (m_WentBackToMenu)
+                    {
+                        m_WentBackToMenu = false;
+                    }
+                    else
+                    {
+                        std::shared_ptr<Engine::Event> evnt = std::make_shared<Engine::Event>(Engine::EventType::START_GAME);
+                        Engine::EventManager::GetInstance()->Fire(evnt);
+                    }
+                }
+                else if (m_CloseButton.WasClicked())
+                {
+                    LOG_INFO("Bye !");
+                    m_Window->close();
+                }
+            }
+            else if (m_IsPlayingEndGame)
+            {
+                if (m_RestartButton.WasClicked())
+                {
+                    LOG_INFO("Restarting level...");
+                    m_RestartButton.ResetClickStatus();
+                    m_IsPlayingEndGame = false;
+
+                    std::shared_ptr<Gameplay::LevelEvent> levelEvent = std::make_shared<Gameplay::LevelEvent>(Gameplay::LevelStatus::RESTART);
+                    Engine::EventManager::GetInstance()->Fire(levelEvent);
+                }
+                else if (m_BackToMenuButton.WasClicked())
+                {
+                    LOG_INFO("Going back to the main menu...");
+                    m_ToggleMainMenu = true;
+                    m_WentBackToMenu = true;
+                    m_IsPlayingEndGame = false;
+                    Gameplay::GameManager::GetInstance()->ResetGameState();
+                }
+            }
+             */
+
+            if (m_ConfirmButton.WasClicked())
+            {
+                LOG_DEBUG("Confirmed boat placement !");
+                m_ConfirmButton.ResetClickStatus();
+            }
+            else if (m_RandomButton.WasClicked())
+            {
+                LOG_DEBUG("Randomized boat placement...");
+                m_RandomButton.ResetClickStatus();
+            }
+        }
+
+        void UIManager::draw(sf::RenderTarget& target, sf::RenderStates states) const
+        {
+           /* if (m_ToggleMainMenu)
+            {
+                target.draw(m_MainTitle);
+                target.draw(m_StartButton);
+                target.draw(m_CloseButton);
+            }
+            else
+            {
+                if (m_IsPlayingEndGame)
+                {
+                    target.draw(m_RestartButton);
+                    target.draw(m_BackToMenuButton);
+                    target.draw(m_EndGameText);
+                }
+            }*/
+           if (m_ToggleBoatPlacementMenu)
+           {
+               target.draw(m_ConfirmButton);
+               target.draw(m_RandomButton);
+           }
+        }
+
+        void UIManager::OnEvent(const Engine::Event* evnt)
+        {
+            // TODO
+        }
+    }
+}

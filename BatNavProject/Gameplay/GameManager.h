@@ -9,6 +9,11 @@
 
 namespace BatNav
 {
+    namespace UI
+    {
+        class UIManager;
+    }
+
     namespace Gameplay
     {
         class GameManager : public Engine::Game
@@ -34,6 +39,8 @@ namespace BatNav
             //====================//
 
             static GameManager* m_GameManager; // Singleton instance
+
+            std::unique_ptr<UI::UIManager> m_UIManager;
 
             enum class GameState
             {
