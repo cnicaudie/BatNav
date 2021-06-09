@@ -19,14 +19,10 @@ namespace BatNav
                 //, m_GUIView(sf::FloatRect(0.f, 0.f, static_cast<float>(window->getSize().x), static_cast<float>(window->getSize().y)))
                 , m_ToggleMainMenu(true)
                 , m_ToggleBoatPlacementMenu(true)
-                , m_IsPlayingEndGame(false)
-                , m_WentBackToMenu(false)
                 , m_StartButton(BUTTON_SIZE)
                 , m_CloseButton(BUTTON_SIZE)
                 , m_ConfirmButton(BUTTON_SIZE)
                 , m_RandomButton(BUTTON_SIZE)
-                , m_RestartButton(BUTTON_SIZE)
-                , m_BackToMenuButton(BUTTON_SIZE)
         {
             const sf::Vector2f WINDOW_CENTER{ window->getView().getCenter() };
 
@@ -94,20 +90,6 @@ namespace BatNav
             m_ConfirmButton.SetButtonTextFont(m_MainFont);
             m_ConfirmButton.SetButtonTextString("Confirm");
             m_ConfirmButton.SetButtonTextPosition(confirmButtonPosition);
-
-            // === End Level/Game Menu
-
-            const sf::Vector2f restartButtonPosition{ WINDOW_CENTER.x - 2 * BUTTONS_OFFSET, WINDOW_CENTER.y + BUTTONS_OFFSET };
-            m_RestartButton.SetButtonPosition(restartButtonPosition);
-            m_RestartButton.SetButtonTextFont(m_MainFont);
-            m_RestartButton.SetButtonTextString("Restart");
-            m_RestartButton.SetButtonTextPosition(restartButtonPosition);
-
-            const sf::Vector2f backButtonPosition{ WINDOW_CENTER.x + 2 * BUTTONS_OFFSET, WINDOW_CENTER.y + BUTTONS_OFFSET };
-            m_BackToMenuButton.SetButtonPosition(backButtonPosition);
-            m_BackToMenuButton.SetButtonTextFont(m_MainFont);
-            m_BackToMenuButton.SetButtonTextString("Back to menu");
-            m_BackToMenuButton.SetButtonTextPosition(backButtonPosition);
         }
 
         UIManager::~UIManager()
@@ -158,26 +140,7 @@ namespace BatNav
                     m_Window->close();
                 }
             }
-            else if (m_IsPlayingEndGame)
-            {
-                if (m_RestartButton.WasClicked())
-                {
-                    LOG_INFO("Restarting level...");
-                    m_RestartButton.ResetClickStatus();
-                    m_IsPlayingEndGame = false;
 
-                    std::shared_ptr<Gameplay::LevelEvent> levelEvent = std::make_shared<Gameplay::LevelEvent>(Gameplay::LevelStatus::RESTART);
-                    Engine::EventManager::GetInstance()->Fire(levelEvent);
-                }
-                else if (m_BackToMenuButton.WasClicked())
-                {
-                    LOG_INFO("Going back to the main menu...");
-                    m_ToggleMainMenu = true;
-                    m_WentBackToMenu = true;
-                    m_IsPlayingEndGame = false;
-                    Gameplay::GameManager::GetInstance()->ResetGameState();
-                }
-            }
              */
 
             if (m_ConfirmButton.WasClicked())
@@ -222,7 +185,7 @@ namespace BatNav
 
         void UIManager::OnEvent(const Engine::Event* evnt)
         {
-            // TODO
+            // TODO :
         }
     }
 }

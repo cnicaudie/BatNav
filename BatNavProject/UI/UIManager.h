@@ -38,6 +38,7 @@ namespace BatNav
             sf::Font m_MainFont;
 
             // === In Game UI
+            // TODO : Score ?
 
             // === Main Menu
             bool m_ToggleMainMenu;
@@ -50,11 +51,7 @@ namespace BatNav
             Button m_RandomButton;
             Button m_ConfirmButton;
 
-            // === End Game Menu
-            bool m_IsPlayingEndGame;
-            bool m_WentBackToMenu;
-            Button m_RestartButton;
-            Button m_BackToMenuButton;
+            // === End Game Text
             sf::Text m_EndGameText;
         };
     }
