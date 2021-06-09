@@ -4,9 +4,9 @@
 
 #include "UIManager.h"
 #include "../Engine/Event/EventManager.h"
-#include "../Engine/Event/Listener/EventListener.h"
 #include "../Engine/Log/Log.h"
 #include "../Gameplay/Events/BoardEvent.h"
+#include "../Gameplay/GameManager.h"
 
 namespace BatNav
 {
@@ -18,7 +18,6 @@ namespace BatNav
                 : m_Window(window)
                 //, m_GUIView(sf::FloatRect(0.f, 0.f, static_cast<float>(window->getSize().x), static_cast<float>(window->getSize().y)))
                 , m_ToggleMainMenu(true)
-                , m_ToggleBoatPlacementMenu(true)
                 , m_StartButton(BUTTON_SIZE)
                 , m_CloseButton(BUTTON_SIZE)
                 , m_ConfirmButton(BUTTON_SIZE)
@@ -176,7 +175,7 @@ namespace BatNav
                     target.draw(m_EndGameText);
                 }
             }*/
-           if (m_ToggleBoatPlacementMenu)
+           if (Gameplay::GameManager::GetInstance()->IsPlacingBoats())
            {
                target.draw(m_ConfirmButton);
                target.draw(m_RandomButton);

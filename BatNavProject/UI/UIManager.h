@@ -47,7 +47,6 @@ namespace BatNav
             sf::Text m_MainTitle;
 
             // === Boat Placement Menu
-            bool m_ToggleBoatPlacementMenu;
             Button m_RandomButton;
             Button m_ConfirmButton;
 
