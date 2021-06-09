@@ -7,6 +7,7 @@
 #include "../GameManager.h"
 #include "../../Engine/Event/EventTypes/ClickEvent.h"
 #include "../../Engine/Maths/Maths.h"
+#include "../Events/BoardEvent.h"
 
 namespace BatNav
 {
@@ -22,9 +23,9 @@ namespace BatNav
             , m_WasAttacked(false)
             , m_CanPlaceBoat(false)
             , m_PlacedAllBoats(false)
+            , m_ConfirmedPlacement(false)
             , m_SelectedBoatIndex(0)
             , m_SelectedTileIndex(0)
-            , m_PlacementMode(PlacementMode::PLAYER)
         {
             // Board loading
             if (!m_TileSet.loadFromFile("../Assets/tiles_test.png"))
@@ -39,13 +40,17 @@ namespace BatNav
 
             // Event listeners configuration
             Engine::EventListener<Board, Engine::ClickEvent> listenerClickEvent(this, &Board::OnEvent);
+            Engine::EventListener<Board, BoardEvent> listenerBoardEvent(this, &Board::OnEvent);
             Engine::EventManager::GetInstance()->AddListener(listenerClickEvent);
+            Engine::EventManager::GetInstance()->AddListener(listenerBoardEvent);
         }
 
         Board::~Board()
         {
             Engine::EventListener<Board, Engine::ClickEvent> listenerClickEvent(this, &Board::OnEvent);
+            Engine::EventListener<Board, BoardEvent> listenerBoardEvent(this, &Board::OnEvent);
             Engine::EventManager::GetInstance()->RemoveListener(listenerClickEvent);
+            Engine::EventManager::GetInstance()->RemoveListener(listenerBoardEvent);
         }
 
         void Board::Update(const sf::Vector2f& cursorPosition)
@@ -59,16 +64,13 @@ namespace BatNav
 
             if (GameManager::GetInstance()->IsPlacingBoats())
             {
-                if (!m_PlacedAllBoats && m_PlacementMode == PlacementMode::PLAYER)
+                if (!m_PlacedAllBoats)
                 {
                     SelectBoatToPlace();
-                    ManageTileSelection(cursorPosition);
                 }
             }
-            else
-            {
-                ManageTileSelection(cursorPosition);
-            }
+
+            ManageTileSelection(cursorPosition);
         }
 
         void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const
@@ -210,7 +212,7 @@ namespace BatNav
         {
             m_SelectedTileIndex = tileIndex;
 
-            if (GameManager::GetInstance()->IsPlacingBoats())
+            if (GameManager::GetInstance()->IsPlacingBoats() && !m_PlacedAllBoats)
             {
                 const Boat& boat = m_Boats[m_SelectedBoatIndex];
 
@@ -234,7 +236,7 @@ namespace BatNav
 
         void Board::UnselectTiles()
         {
-            if (GameManager::GetInstance()->IsPlacingBoats())
+            if (GameManager::GetInstance()->IsPlacingBoats() && !m_PlacedAllBoats)
             {
                 const Boat& boat = m_Boats[m_SelectedBoatIndex];
                 const bool isBoatVertical = boat.IsVertical();
@@ -326,6 +328,8 @@ namespace BatNav
 
         void Board::MoveBoat(Boat *boat)
         {
+            if (m_PlacedAllBoats) m_PlacedAllBoats = false;
+
             LOG_INFO("Moving boat...");
 
             // Remove boat from board
@@ -348,35 +352,38 @@ namespace BatNav
         {
             for (int i = 0; i < m_Boats.size(); i++)
             {
-                m_SelectedBoatIndex = i;
-
-                Boat& boat = m_Boats[m_SelectedBoatIndex];
-                int xPosition, yPosition;
-
-                // Find a valid position randomly
-                do
+                if (!m_Boats[i].IsPlaced())
                 {
-                    if (Engine::Maths::GetRandomBool()) boat.Rotate();
+                    m_SelectedBoatIndex = i;
 
-                    if (boat.IsVertical())
+                    Boat& boat = m_Boats[m_SelectedBoatIndex];
+                    int xPosition, yPosition;
+
+                    // Find a valid position randomly
+                    do
                     {
-                        xPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.x));
-                        yPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.y - boat.GetSize()));
-                    }
-                    else
-                    {
-                        xPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.x - boat.GetSize()));
-                        yPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.y));
-                    }
+                        if (Engine::Maths::GetRandomBool()) boat.Rotate();
 
-                    m_SelectedTileIndex = xPosition * yPosition;
+                        if (boat.IsVertical())
+                        {
+                            xPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.x));
+                            yPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.y - boat.GetSize()));
+                        }
+                        else
+                        {
+                            xPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.x - boat.GetSize()));
+                            yPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.y));
+                        }
 
-                    CheckBoatPlacement(boat);
+                        m_SelectedTileIndex = xPosition * yPosition;
 
-                } while (!m_CanPlaceBoat);
+                        CheckBoatPlacement(boat);
 
-                // Place the boat
-                PlaceBoat();
+                    } while (!m_CanPlaceBoat);
+
+                    // Place the boat
+                    PlaceBoat();
+                }
             }
 
             m_PlacedAllBoats = true;
@@ -422,11 +429,34 @@ namespace BatNav
         {
             if (m_IsCurrent && !m_WasAttacked)
             {
-                if (const auto* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt))
+                if (const auto* boardEvent = dynamic_cast<const BoardEvent*>(evnt))
+                {
+                    switch (boardEvent->GetBoardStatus())
+                    {
+                        case BoardStatus::BOAT_PLACEMENT_RANDOM:
+                            if (!m_PlacedAllBoats)
+                            {
+                                UnselectTiles();
+                                PlaceAllBoatsRandom();
+                            }
+                            else
+                            {
+                                // TODO : Clear board and replace randomly ?
+                                LOG_WARNING("All boats were placed !");
+                            }
+                            break;
+
+                        case BoardStatus::BOAT_PLACEMENT_CONFIRM:
+                            UnselectTiles();
+                            m_ConfirmedPlacement = true;
+                            break;
+                    }
+                }
+                else if (const auto* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt))
                 {
                     if (clickEvent->IsRightClick())
                     {
-                        if (GameManager::GetInstance()->IsPlacingBoats())
+                        if (GameManager::GetInstance()->IsPlacingBoats() && !m_PlacedAllBoats)
                         {
                             Boat& boat = m_Boats[m_SelectedBoatIndex];
 
@@ -443,34 +473,31 @@ namespace BatNav
                         if (clickPosition.x < 0.f || clickPosition.x > static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
                             || clickPosition.y < 0.f || clickPosition.y > static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
                         {
-                            LOG_WARNING("Click outside of the board : ignored.");
+                            LOG_WARNING("Click outside of the board.");
                             return;
                         }
 
                         if (GameManager::GetInstance()->IsPlacingBoats())
                         {
-                            if (m_PlacementMode == PlacementMode::RANDOM)
+                            if (m_CanPlaceBoat && !m_PlacedAllBoats)
                             {
-                                PlaceAllBoatsRandom();
+                                PlaceBoat();
                             }
-                            else if (m_PlacementMode == PlacementMode::PLAYER)
+                            else
                             {
-                                if (m_CanPlaceBoat)
+                                Boat* boat = GetBoatFromTileIndex();
+
+                                if (boat != m_Boats.end())
                                 {
-                                    PlaceBoat();
+                                    MoveBoat(boat);
+                                }
+                                else if (m_PlacedAllBoats)
+                                {
+                                    LOG_WARNING("All boats were placed !");
                                 }
                                 else
                                 {
-                                    Boat* boat = GetBoatFromTileIndex();
-
-                                    if (boat != m_Boats.end())
-                                    {
-                                        MoveBoat(boat);
-                                    }
-                                    else
-                                    {
-                                        LOG_WARNING("Can't place this boat here !");
-                                    }
+                                    LOG_WARNING("Can't place this boat here !");
                                 }
                             }
                         }

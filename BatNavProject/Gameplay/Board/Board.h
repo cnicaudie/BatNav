@@ -25,7 +25,7 @@ namespace BatNav
 
             inline bool IsCurrent() const { return m_IsCurrent; }
             inline bool WasAttacked() const { return m_WasAttacked; }
-            inline bool PlacedAllBoats() const { return m_PlacedAllBoats; }
+            inline bool PlacedAllBoats() const { return m_PlacedAllBoats && m_ConfirmedPlacement; }
             inline void SetToCurrent() { m_IsCurrent = true; }
             inline void ResetCurrent() { m_IsCurrent = false; }
             inline void ResetAttack() { m_WasAttacked = false; }
@@ -66,19 +66,15 @@ namespace BatNav
                 TOUCHED     = 3
             };
 
-            enum class PlacementMode
-            {
-                RANDOM  = 0,
-                PLAYER  = 1
-            } m_PlacementMode;
-
             int m_SelectedTileIndex;
             int m_SelectedBoatIndex;
 
             bool m_IsCurrent;
             bool m_WasAttacked;
+
             bool m_CanPlaceBoat;
             bool m_PlacedAllBoats;
+            bool m_ConfirmedPlacement;
 
             std::array<Boat, 5> m_Boats;
 

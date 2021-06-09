@@ -4,20 +4,14 @@
 
 #pragma once
 
-#include "../../Engine/Event/EventTypes/Event.h"
-
 namespace BatNav
 {
     namespace Gameplay
     {
-        class BoatEvent : public Engine::Event
+        enum class BoardStatus
         {
-        public:
-
-        private:
-
+            BOAT_PLACEMENT_RANDOM   = 0,
+            BOAT_PLACEMENT_CONFIRM  = 1
         };
     }
 }
-
-

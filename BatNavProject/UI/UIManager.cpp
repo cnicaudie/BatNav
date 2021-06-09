@@ -6,6 +6,7 @@
 #include "../Engine/Event/EventManager.h"
 #include "../Engine/Event/Listener/EventListener.h"
 #include "../Engine/Log/Log.h"
+#include "../Gameplay/Events/BoardEvent.h"
 
 namespace BatNav
 {
@@ -181,13 +182,17 @@ namespace BatNav
 
             if (m_ConfirmButton.WasClicked())
             {
-                LOG_DEBUG("Confirmed boat placement !");
                 m_ConfirmButton.ResetClickStatus();
+
+                std::shared_ptr<Gameplay::BoardEvent> evnt = std::make_shared<Gameplay::BoardEvent>(Gameplay::BoardStatus::BOAT_PLACEMENT_CONFIRM);
+                Engine::EventManager::GetInstance()->Fire(evnt);
             }
             else if (m_RandomButton.WasClicked())
             {
-                LOG_DEBUG("Randomized boat placement...");
                 m_RandomButton.ResetClickStatus();
+
+                std::shared_ptr<Gameplay::BoardEvent> evnt = std::make_shared<Gameplay::BoardEvent>(Gameplay::BoardStatus::BOAT_PLACEMENT_RANDOM);
+                Engine::EventManager::GetInstance()->Fire(evnt);
             }
         }
 

@@ -12,7 +12,8 @@ namespace BatNav
         {
             START_GAME	= 0,
             END_GAME	= 1,
-            CLICK		= 2
+            CLICK		= 2,
+            GAME        = 3
         };
     }
 }
