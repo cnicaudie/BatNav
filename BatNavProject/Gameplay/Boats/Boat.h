@@ -16,7 +16,13 @@ namespace BatNav
         public:
             Boat();
 
-            void Place();
+            inline void Place()
+            {
+                LOG_INFO("Placed boat : " << m_Name);
+                m_IsPlaced = true;
+            }
+            inline void Unplace() { m_IsPlaced = false; }
+
             void Touch();
 
             inline void SetName(const std::string& name) { m_Name = name; }

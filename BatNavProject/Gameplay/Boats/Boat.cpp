@@ -18,12 +18,6 @@ namespace BatNav
             , m_HasSunk(false)
         {}
 
-        void Boat::Place()
-        {
-            LOG_INFO("Placed boat : " << m_Name);
-            m_IsPlaced = true;
-        }
-
         void Boat::Touch()
         {
             LOG_INFO("Touched!");

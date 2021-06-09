@@ -47,6 +47,7 @@ namespace BatNav
             void SelectBoatToPlace();
             void CheckBoatPlacement(const Boat &boat);
             void PlaceBoat();
+            void MoveBoat(Boat *boat);
             void PlaceAllBoatsRandom();
             int GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const;
             Boat* GetBoatFromTileIndex();

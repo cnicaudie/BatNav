@@ -324,6 +324,26 @@ namespace BatNav
             boat.Place();
         }
 
+        void Board::MoveBoat(Boat *boat)
+        {
+            LOG_INFO("Moving boat...");
+
+            // Remove boat from board
+            int boatIndexOnBoard = boat->GetPositionIndex();
+
+            for (int k = 0; k < boat->GetSize(); k++)
+            {
+                int tileIndex = GetBoatTileOffsetIndex(boat->IsVertical(), k, boatIndexOnBoard);
+                m_Board[tileIndex] = TileType::WATER;
+                UpdateTileOnBoard(tileIndex);
+            }
+
+            boat->Unplace();
+
+            // Select it for placement
+            m_SelectedBoatIndex = boat - m_Boats.begin();
+        }
+
         void Board::PlaceAllBoatsRandom()
         {
             for (int i = 0; i < m_Boats.size(); i++)
@@ -441,7 +461,16 @@ namespace BatNav
                                 }
                                 else
                                 {
-                                    LOG_WARNING("Can't place this boat here !");
+                                    Boat* boat = GetBoatFromTileIndex();
+
+                                    if (boat != m_Boats.end())
+                                    {
+                                        MoveBoat(boat);
+                                    }
+                                    else
+                                    {
+                                        LOG_WARNING("Can't place this boat here !");
+                                    }
                                 }
                             }
                         }
