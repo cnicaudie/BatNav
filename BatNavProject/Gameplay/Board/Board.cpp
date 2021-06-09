@@ -196,9 +196,7 @@ namespace BatNav
                 LOG_WARNING("Tile index out of bound");
             }
 
-            // If the tile is free
-            if (m_SelectedTileIndex != tileIndex
-                && (m_Board[tileIndex] == TileType::WATER || m_Board[tileIndex] == TileType::BOAT))
+            if (m_Board[tileIndex] == TileType::WATER || m_Board[tileIndex] == TileType::BOAT)
             {
                 // Unselect previous selection
                 UnselectTiles();
