@@ -9,7 +9,7 @@ namespace BatNav
     namespace Engine
     {
         static constexpr float APP_MAX_FRAMERATE{ 60.0f };
-        static const sf::Vector2u APP_INIT_WINDOW_SIZE{ 640, 640 };
+        static const sf::Vector2u APP_INIT_WINDOW_SIZE{ 1280, 640 };
 
         Game::Game(const char* windowTitle)
                 : m_Window{ sf::VideoMode(APP_INIT_WINDOW_SIZE.x, APP_INIT_WINDOW_SIZE.y), windowTitle, sf::Style::Titlebar | sf::Style::Close }

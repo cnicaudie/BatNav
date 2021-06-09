@@ -33,7 +33,7 @@ namespace BatNav
         {
             // Center the view
             sf::View gameView;
-            gameView.setViewport(sf::FloatRect(0.25f, 0.25, 1.5f, 1.5f));
+            gameView.setViewport(sf::FloatRect(0.f, 0.f, 1.5f, 3.f));
             m_Window.setView(gameView);
 
             // TODO : Remove that when integrating a main menu
