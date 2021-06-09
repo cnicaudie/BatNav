@@ -38,10 +38,17 @@ namespace BatNav
 
             // TODO : Remove that when integrating a main menu
             m_CurrentState = GameState::PLACING_BOATS;
+
+            // Event listeners configuration
+            Engine::EventListener<GameManager, Engine::Event> listenerEvent(this, &GameManager::OnEvent);
+            Engine::EventManager::GetInstance()->AddListener(listenerEvent);
         }
 
         GameManager::~GameManager()
         {
+            Engine::EventListener<GameManager, Engine::Event> listenerEvent(this, &GameManager::OnEvent);
+            Engine::EventManager::GetInstance()->RemoveListener(listenerEvent);
+
             delete m_GameManager;
         }
 
@@ -50,33 +57,37 @@ namespace BatNav
             const sf::Vector2f mousePosition = m_Window.mapPixelToCoords(sf::Mouse::getPosition(m_Window));
 
             Engine::EventManager::GetInstance()->Update();
-            m_InputManager->UpdateMousePosition(mousePosition);
-            m_UIManager->Update(deltaTime);
 
-            m_BoardB.Update(mousePosition);
-            m_BoardA.Update(mousePosition);
-
-            if (m_CurrentState == GameState::PLACING_BOATS)
+            if (m_CurrentState != GameState::NOT_STARTED)
             {
-                if (m_BoardA.IsCurrent() && m_BoardA.PlacedAllBoats())
+                m_InputManager->UpdateMousePosition(mousePosition);
+                m_UIManager->Update(deltaTime);
+
+                m_BoardB.Update(mousePosition);
+                m_BoardA.Update(mousePosition);
+
+                if (m_CurrentState == GameState::PLACING_BOATS)
                 {
-                    SwitchCurrentBoard();
+                    if (m_BoardA.IsCurrent() && m_BoardA.PlacedAllBoats())
+                    {
+                        SwitchCurrentBoard();
+                    }
+                    else if (m_BoardB.IsCurrent() && m_BoardB.PlacedAllBoats())
+                    {
+                        SwitchCurrentBoard();
+                        m_CurrentState = GameState::PLAYING;
+                    }
                 }
-                else if (m_BoardB.IsCurrent() && m_BoardB.PlacedAllBoats())
+                else if (m_CurrentState == GameState::PLAYING)
+                {
+                    CheckAttacks();
+                }
+                else if ((m_CurrentState == GameState::SWITCHING_TURNS)
+                    && (m_SwitchTurnTimer.getElapsedTime().asSeconds() >= SWITCH_TURN_COOLDOWN))
                 {
                     SwitchCurrentBoard();
                     m_CurrentState = GameState::PLAYING;
                 }
-            }
-            else if (m_CurrentState == GameState::PLAYING)
-            {
-                CheckAttacks();
-            }
-            else if ((m_CurrentState == GameState::SWITCHING_TURNS)
-                && (m_SwitchTurnTimer.getElapsedTime().asSeconds() >= SWITCH_TURN_COOLDOWN))
-            {
-                SwitchCurrentBoard();
-                m_CurrentState = GameState::PLAYING;
             }
         }
 
@@ -113,16 +124,32 @@ namespace BatNav
         {
             target.clear(sf::Color(0, 0, 0));
 
-            if (m_BoardA.IsCurrent())
+            if (m_CurrentState != GameState::NOT_STARTED)
             {
-                target.draw(m_BoardA);
-            }
-            else if (m_BoardB.IsCurrent())
-            {
-                target.draw(m_BoardB);
+                if (m_BoardA.IsCurrent())
+                {
+                    target.draw(m_BoardA);
+                }
+                else if (m_BoardB.IsCurrent())
+                {
+                    target.draw(m_BoardB);
+                }
             }
 
             target.draw(*m_UIManager);
+        }
+
+        void GameManager::OnEvent(const Engine::Event* evnt)
+        {
+            if (evnt->GetEventType() == Engine::EventType::START_GAME)
+            {
+                m_CurrentState = GameState::PLAYING;
+            }
+            else if (evnt->GetEventType() == Engine::EventType::END_GAME)
+            {
+                LOG_INFO("GAME OVER !!!");
+                m_CurrentState = GameState::OVER;
+            }
         }
     }
 }

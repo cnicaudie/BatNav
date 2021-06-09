@@ -36,6 +36,8 @@ namespace BatNav
             void CheckAttacks();
             void SwitchCurrentBoard();
 
+            void OnEvent(const Engine::Event* evnt);
+
             //====================//
 
             static GameManager* m_GameManager; // Singleton instance
