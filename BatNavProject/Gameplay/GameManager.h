@@ -28,6 +28,7 @@ namespace BatNav
 
             //inline const bool IsGameOver() const { return m_CurrentState == GameState::OVER; }
             inline const bool IsPlacingBoats() const { return m_CurrentState == GameState::PLACING_BOATS; }
+            inline const bool HasStarted() const { return m_CurrentState != GameState::NOT_STARTED; }
 
         private:
             GameManager();

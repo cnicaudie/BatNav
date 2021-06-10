@@ -16,7 +16,6 @@ namespace BatNav
 
         UIManager::UIManager(sf::RenderWindow* window)
                 : m_Window(window)
-                //, m_GUIView(sf::FloatRect(0.f, 0.f, static_cast<float>(window->getSize().x), static_cast<float>(window->getSize().y)))
                 , m_ToggleMainMenu(true)
                 , m_StartButton(BUTTON_SIZE)
                 , m_CloseButton(BUTTON_SIZE)
@@ -31,8 +30,8 @@ namespace BatNav
             InitButtons(WINDOW_CENTER);
 
             // Configure EventListeners
-            Engine::EventListener<UIManager, Engine::Event> listenerGameOver(this, &UIManager::OnEvent);
-            Engine::EventManager::GetInstance()->AddListener(listenerGameOver);
+            //Engine::EventListener<UIManager, Engine::Event> listenerGameOver(this, &UIManager::OnEvent);
+            //Engine::EventManager::GetInstance()->AddListener(listenerGameOver);
         }
 
         void UIManager::InitTexts(const sf::Vector2f& WINDOW_CENTER)
@@ -40,13 +39,13 @@ namespace BatNav
             // === In Game UI
 
             // === Main Menu
-            m_MainTitle.setFont(m_MainFont);
+            /*m_MainTitle.setFont(m_MainFont);
             m_MainTitle.setCharacterSize(80);
             m_MainTitle.setFillColor(sf::Color::White);
-            m_MainTitle.setString("Seek A Soul");
+            m_MainTitle.setString("BATNAV");
             m_MainTitle.setStyle(sf::Text::Bold);
             m_MainTitle.setPosition(WINDOW_CENTER.x - (m_MainTitle.getGlobalBounds().width / 2), WINDOW_CENTER.y * 0.15f);
-
+            */
             // === End Level/Game Menu
 
             m_EndGameText.setFont(m_MainFont);
@@ -64,13 +63,13 @@ namespace BatNav
 
             // === Main Menu
 
-            const sf::Vector2f startButtonPosition{ WINDOW_CENTER.x, WINDOW_CENTER.y - BUTTONS_OFFSET };
+            const sf::Vector2f startButtonPosition{ WINDOW_CENTER.x - 3 * BUTTONS_OFFSET, WINDOW_CENTER.y - 2 * BUTTONS_OFFSET };
             m_StartButton.SetButtonPosition(startButtonPosition);
             m_StartButton.SetButtonTextFont(m_MainFont);
             m_StartButton.SetButtonTextString("Start");
             m_StartButton.SetButtonTextPosition(startButtonPosition);
 
-            const sf::Vector2f closeButtonPosition{ WINDOW_CENTER.x, WINDOW_CENTER.y + BUTTONS_OFFSET };
+            const sf::Vector2f closeButtonPosition{ WINDOW_CENTER.x - 3 * BUTTONS_OFFSET, WINDOW_CENTER.y - BUTTONS_OFFSET };
             m_CloseButton.SetButtonPosition(closeButtonPosition);
             m_CloseButton.SetButtonTextFont(m_MainFont);
             m_CloseButton.SetButtonTextString("Quit");
@@ -94,15 +93,12 @@ namespace BatNav
         UIManager::~UIManager()
         {
             // Remove listeners
-            Engine::EventListener<UIManager, Engine::Event> listenerGameOver(this, &UIManager::OnEvent);
-            Engine::EventManager::GetInstance()->RemoveListener(listenerGameOver);
+            //Engine::EventListener<UIManager, Engine::Event> listenerGameOver(this, &UIManager::OnEvent);
+            //Engine::EventManager::GetInstance()->RemoveListener(listenerGameOver);
         }
 
         void UIManager::Update(float deltaTime)
         {
-            // Update the view
-            //m_Window->setView(m_GUIView);
-
             UpdateTexts();
             ManageButtons();
         }
@@ -114,7 +110,6 @@ namespace BatNav
 
         void UIManager::ManageButtons()
         {
-            /*
             if (m_ToggleMainMenu)
             {
                 if (m_StartButton.WasClicked())
@@ -123,15 +118,8 @@ namespace BatNav
                     m_StartButton.ResetClickStatus();
                     m_ToggleMainMenu = false;
 
-                    if (m_WentBackToMenu)
-                    {
-                        m_WentBackToMenu = false;
-                    }
-                    else
-                    {
-                        std::shared_ptr<Engine::Event> evnt = std::make_shared<Engine::Event>(Engine::EventType::START_GAME);
-                        Engine::EventManager::GetInstance()->Fire(evnt);
-                    }
+                    std::shared_ptr<Engine::Event> evnt = std::make_shared<Engine::Event>(Engine::EventType::START_GAME);
+                    Engine::EventManager::GetInstance()->Fire(evnt);
                 }
                 else if (m_CloseButton.WasClicked())
                 {
@@ -139,10 +127,7 @@ namespace BatNav
                     m_Window->close();
                 }
             }
-
-             */
-
-            if (m_ConfirmButton.WasClicked())
+            else if (m_ConfirmButton.WasClicked())
             {
                 m_ConfirmButton.ResetClickStatus();
 
@@ -160,31 +145,27 @@ namespace BatNav
 
         void UIManager::draw(sf::RenderTarget& target, sf::RenderStates states) const
         {
-           /* if (m_ToggleMainMenu)
+            if (m_ToggleMainMenu)
             {
-                target.draw(m_MainTitle);
+                //target.draw(m_MainTitle);
                 target.draw(m_StartButton);
                 target.draw(m_CloseButton);
             }
             else
             {
-                if (m_IsPlayingEndGame)
+                if (Gameplay::GameManager::GetInstance()->IsPlacingBoats())
                 {
-                    target.draw(m_RestartButton);
-                    target.draw(m_BackToMenuButton);
-                    target.draw(m_EndGameText);
+                    target.draw(m_ConfirmButton);
+                    target.draw(m_RandomButton);
                 }
-            }*/
-           if (Gameplay::GameManager::GetInstance()->IsPlacingBoats())
-           {
-               target.draw(m_ConfirmButton);
-               target.draw(m_RandomButton);
-           }
+
+                //target.draw(m_EndGameText);
+            }
         }
 
         void UIManager::OnEvent(const Engine::Event* evnt)
         {
-            // TODO :
+            // TODO
         }
     }
 }

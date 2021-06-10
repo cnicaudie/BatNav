@@ -36,9 +36,6 @@ namespace BatNav
             gameView.setViewport(sf::FloatRect(0.f, 0.f, 1.5f, 3.f));
             m_Window.setView(gameView);
 
-            // TODO : Remove that when integrating a main menu
-            m_CurrentState = GameState::PLACING_BOATS;
-
             // Event listeners configuration
             Engine::EventListener<GameManager, Engine::Event> listenerEvent(this, &GameManager::OnEvent);
             Engine::EventManager::GetInstance()->AddListener(listenerEvent);
@@ -57,12 +54,11 @@ namespace BatNav
             const sf::Vector2f mousePosition = m_Window.mapPixelToCoords(sf::Mouse::getPosition(m_Window));
 
             Engine::EventManager::GetInstance()->Update();
+            m_InputManager->UpdateMousePosition(mousePosition);
+            m_UIManager->Update(deltaTime);
 
             if (m_CurrentState != GameState::NOT_STARTED)
             {
-                m_InputManager->UpdateMousePosition(mousePosition);
-                m_UIManager->Update(deltaTime);
-
                 m_BoardB.Update(mousePosition);
                 m_BoardA.Update(mousePosition);
 
@@ -143,7 +139,7 @@ namespace BatNav
         {
             if (evnt->GetEventType() == Engine::EventType::START_GAME)
             {
-                m_CurrentState = GameState::PLAYING;
+                m_CurrentState = GameState::PLACING_BOATS;
             }
             else if (evnt->GetEventType() == Engine::EventType::END_GAME)
             {

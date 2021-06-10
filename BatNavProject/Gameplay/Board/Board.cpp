@@ -521,7 +521,7 @@ namespace BatNav
                                 }
                             }
                         }
-                        else
+                        else if (GameManager::GetInstance()->HasStarted())
                         {
                             HandleAttack();
                         }
