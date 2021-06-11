@@ -68,7 +68,7 @@ namespace BatNav
                 return;
             }
 
-            if (m_WasAttacked || !m_IsCurrent
+            if (m_WasAttacked
                 || cursorPosition.x < 0.f || cursorPosition.x > static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
                 || cursorPosition.y < 0.f || cursorPosition.y > static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
             {
@@ -339,6 +339,13 @@ namespace BatNav
             boat.Place();
         }
 
+        void Board::RotateBoat()
+        {
+            UnselectTiles();
+            m_Boats[m_SelectedBoatIndex].Rotate();
+            SelectTiles(m_SelectedTileIndex);
+        }
+
         void Board::MoveBoat(Boat *boat)
         {
             if (m_PlacedAllBoats) m_PlacedAllBoats = false;
@@ -363,6 +370,8 @@ namespace BatNav
 
         void Board::PlaceAllBoatsRandom()
         {
+            UnselectTiles();
+
             for (int i = 0; i < m_Boats.size(); i++)
             {
                 if (!m_Boats[i].IsPlaced())
@@ -440,91 +449,92 @@ namespace BatNav
 
         void Board::OnEvent(const Engine::Event* evnt)
         {
-            if (m_IsCurrent && !m_WasAttacked)
-            {
-                if (const auto* boardEvent = dynamic_cast<const BoardEvent*>(evnt))
-                {
-                    switch (boardEvent->GetBoardStatus())
-                    {
-                        case BoardStatus::BOAT_PLACEMENT_RANDOM:
-                            if (!m_PlacedAllBoats)
-                            {
-                                UnselectTiles();
-                                PlaceAllBoatsRandom();
-                            }
-                            else
-                            {
-                                // TODO : Clear board and replace randomly ?
-                                LOG_WARNING("All boats were placed !");
-                            }
-                            break;
+            if (!m_IsCurrent) return;
 
-                        case BoardStatus::BOAT_PLACEMENT_CONFIRM:
-                            if (m_PlacedAllBoats)
-                            {
-                                UnselectTiles();
-                                m_ConfirmedPlacement = true;
-                            }
-                            else
-                            {
-                                LOG_WARNING("Please place all boats before confirming placement.");
-                            }
-                            break;
+            const auto* boardEvent = dynamic_cast<const BoardEvent*>(evnt);
+            const auto* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt);
+
+            if (GameManager::GetInstance()->IsPlacingBoats() && boardEvent != nullptr)
+            {
+                switch (boardEvent->GetBoardStatus())
+                {
+                    case BoardStatus::BOAT_PLACEMENT_RANDOM:
+                    {
+                        if (!m_PlacedAllBoats)
+                        {
+                            PlaceAllBoatsRandom();
+                        }
+                        else
+                        {
+                            // TODO : Clear board and replace randomly ?
+                            LOG_WARNING("All boats were placed !");
+                        }
+                        break;
+                    }
+
+                    case BoardStatus::BOAT_PLACEMENT_CONFIRM:
+                    {
+                        if (m_PlacedAllBoats)
+                        {
+                            UnselectTiles();
+                            m_ConfirmedPlacement = true;
+                        }
+                        else
+                        {
+                            LOG_WARNING("Please place all boats before confirming placement.");
+                        }
+                        break;
                     }
                 }
-                else if (const auto* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt))
+            }
+            else if (!m_WasAttacked && clickEvent != nullptr)
+            {
+                if (clickEvent->IsRightClick())
                 {
-                    if (clickEvent->IsRightClick())
+                    if (GameManager::GetInstance()->IsPlacingBoats() && !m_PlacedAllBoats)
                     {
-                        if (GameManager::GetInstance()->IsPlacingBoats() && !m_PlacedAllBoats)
-                        {
-                            Boat& boat = m_Boats[m_SelectedBoatIndex];
-
-                            UnselectTiles();
-                            boat.Rotate();
-                            SelectTiles(m_SelectedTileIndex);
-                        }
+                        RotateBoat();
                     }
-                    else
+                }
+                else
+                {
+                    const sf::Vector2f clickPosition = clickEvent->GetClickPosition();
+
+                    // Check that click happened within the board limits
+                    if (clickPosition.x < 0.f || clickPosition.x > static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
+                        || clickPosition.y < 0.f || clickPosition.y > static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
                     {
-                        const sf::Vector2f clickPosition = clickEvent->GetClickPosition();
+                        LOG_WARNING("Click outside of the board.");
+                        return;
+                    }
 
-                        // Check that click happened within the board limits
-                        if (clickPosition.x < 0.f || clickPosition.x > static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
-                            || clickPosition.y < 0.f || clickPosition.y > static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
+                    if (GameManager::GetInstance()->IsPlacingBoats())
+                    {
+                        if (m_CanPlaceBoat && !m_PlacedAllBoats)
                         {
-                            LOG_WARNING("Click outside of the board.");
-                            return;
+                            PlaceBoat();
                         }
-
-                        if (GameManager::GetInstance()->IsPlacingBoats())
+                        else
                         {
-                            if (m_CanPlaceBoat && !m_PlacedAllBoats)
+                            Boat* boat = GetBoatFromTileIndex();
+
+                            if (boat != m_Boats.end())
                             {
-                                PlaceBoat();
+                                MoveBoat(boat);
+                            }
+                            else if (m_PlacedAllBoats)
+                            {
+                                LOG_WARNING("All boats were placed !");
                             }
                             else
                             {
-                                Boat* boat = GetBoatFromTileIndex();
-
-                                if (boat != m_Boats.end())
-                                {
-                                    MoveBoat(boat);
-                                }
-                                else if (m_PlacedAllBoats)
-                                {
-                                    LOG_WARNING("All boats were placed !");
-                                }
-                                else
-                                {
-                                    LOG_WARNING("Can't place this boat here !");
-                                }
+                                LOG_WARNING("Can't place this boat here !");
                             }
                         }
-                        else if (GameManager::GetInstance()->HasStarted())
-                        {
-                            HandleAttack();
-                        }
+                    }
+                    else if (GameManager::GetInstance()->HasStarted())
+                    {
+                        HandleAttack();
                     }
                 }
             }

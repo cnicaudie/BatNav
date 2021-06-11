@@ -23,12 +23,16 @@ namespace BatNav
             void Update(const sf::Vector2f& cursorPosition);
             void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-            inline bool IsCurrent() const { return m_IsCurrent; }
+            // Attack management
             inline bool WasAttacked() const { return m_WasAttacked && !m_SunkAllBoats; }
-            inline bool PlacedAllBoats() const { return m_PlacedAllBoats && m_ConfirmedPlacement; }
+            inline void ResetAttack() { m_WasAttacked = false; }
+
+            // Current board management
             inline void SetToCurrent() { m_IsCurrent = true; }
             inline void ResetCurrent() { m_IsCurrent = false; }
-            inline void ResetAttack() { m_WasAttacked = false; }
+
+            // Boat placement check
+            inline bool PlacedAllBoats() const { return m_PlacedAllBoats && m_ConfirmedPlacement; }
 
         private:
             // Board loading/update
@@ -47,6 +51,7 @@ namespace BatNav
             void SelectBoatToPlace();
             void CheckBoatPlacement(const Boat &boat);
             void PlaceBoat();
+            void RotateBoat();
             void MoveBoat(Boat *boat);
             void PlaceAllBoatsRandom();
             int GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const;

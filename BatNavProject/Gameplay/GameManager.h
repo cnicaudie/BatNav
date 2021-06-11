@@ -54,8 +54,8 @@ namespace BatNav
                 OVER            = 4
             } m_CurrentState;
 
-            Board m_BoardA;
-            Board m_BoardB;
+            std::array<Board, 2> m_Boards;
+            int m_CurrentBoardIndex;
 
             sf::Clock m_SwitchTurnTimer;
         };

@@ -28,8 +28,8 @@ namespace BatNav
                 : Game{ "BatNav (WIP)" }
                 , m_UIManager{ std::make_unique<UI::UIManager>(&m_Window) }
                 , m_CurrentState(GameState::NOT_STARTED)
-                , m_BoardA(true)
-                , m_BoardB(false)
+                , m_Boards{ true, false }
+                , m_CurrentBoardIndex(0)
         {
             // Center the view
             sf::View gameView;
@@ -59,19 +59,22 @@ namespace BatNav
 
             if (m_CurrentState != GameState::NOT_STARTED)
             {
-                m_BoardB.Update(mousePosition);
-                m_BoardA.Update(mousePosition);
+                m_Boards[m_CurrentBoardIndex].Update(mousePosition);
 
                 if (m_CurrentState == GameState::PLACING_BOATS)
                 {
-                    if (m_BoardA.IsCurrent() && m_BoardA.PlacedAllBoats())
+                    static int boatPlacementCount = 0;
+
+                    if (m_Boards[m_CurrentBoardIndex].PlacedAllBoats())
                     {
                         SwitchCurrentBoard();
-                    }
-                    else if (m_BoardB.IsCurrent() && m_BoardB.PlacedAllBoats())
-                    {
-                        SwitchCurrentBoard();
-                        m_CurrentState = GameState::PLAYING;
+
+                        ++boatPlacementCount;
+
+                        if (boatPlacementCount == m_Boards.size())
+                        {
+                            m_CurrentState = GameState::PLAYING;
+                        }
                     }
                 }
                 else if (m_CurrentState == GameState::PLAYING)
@@ -91,23 +94,15 @@ namespace BatNav
         {
             LOG_DEBUG("Switching current board");
 
-            if (m_BoardA.IsCurrent())
-            {
-                m_BoardA.ResetAttack();
-                m_BoardA.ResetCurrent();
-                m_BoardB.SetToCurrent();
-            }
-            else if (m_BoardB.IsCurrent())
-            {
-                m_BoardB.ResetAttack();
-                m_BoardB.ResetCurrent();
-                m_BoardA.SetToCurrent();
-            }
+            m_Boards[m_CurrentBoardIndex].ResetAttack();
+            m_Boards[m_CurrentBoardIndex].ResetCurrent();
+            m_CurrentBoardIndex = (m_CurrentBoardIndex + 1) % m_Boards.size();
+            m_Boards[m_CurrentBoardIndex].SetToCurrent();
         }
 
         void GameManager::CheckAttacks()
         {
-            if (m_BoardA.WasAttacked() || m_BoardB.WasAttacked())
+            if (m_Boards[m_CurrentBoardIndex].WasAttacked())
             {
                 LOG_DEBUG("Attack detected!");
 
@@ -122,14 +117,7 @@ namespace BatNav
 
             if (m_CurrentState != GameState::NOT_STARTED)
             {
-                if (m_BoardA.IsCurrent())
-                {
-                    target.draw(m_BoardA);
-                }
-                else if (m_BoardB.IsCurrent())
-                {
-                    target.draw(m_BoardB);
-                }
+                target.draw(m_Boards[m_CurrentBoardIndex]);
             }
 
             target.draw(*m_UIManager);
