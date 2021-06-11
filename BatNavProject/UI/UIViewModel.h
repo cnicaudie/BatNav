@@ -10,7 +10,7 @@ namespace BatNav
 {
     namespace Gameplay
     {
-        class Player;
+        class GameManager;
     }
 
     namespace UI
@@ -18,20 +18,27 @@ namespace BatNav
         class UIViewModel
         {
         public:
-//            friend class Gameplay::Player;
-
             static UIViewModel* GetInstance();
             UIViewModel(const UIViewModel& uiViewModel) = delete;
             void operator=(const UIViewModel& uiViewModel) = delete;
+
+            const int GetTurnTime() const { return m_TurnTime; }
 
         private:
             UIViewModel();
             ~UIViewModel();
 
+            void SetTurnTime(const int turnTime) { m_TurnTime = turnTime; }
+
             //====================//
 
             static UIViewModel* m_UIViewModel; // Singleton instance
 
+            int m_TurnTime;
+
+            //====================//
+
+            friend class Gameplay::GameManager;
         };
     }
 }

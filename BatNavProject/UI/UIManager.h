@@ -39,12 +39,12 @@ namespace BatNav
 
             // === In Game UI
             // TODO : Score ?
+            sf::Text m_TurnTimeText;
 
             // === Main Menu
             bool m_ToggleMainMenu;
             Button m_StartButton;
             Button m_CloseButton;
-            sf::Text m_MainTitle;
 
             // === Boat Placement Menu
             Button m_RandomButton;

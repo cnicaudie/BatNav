@@ -57,7 +57,7 @@ namespace BatNav
             std::array<Board, 2> m_Boards;
             int m_CurrentBoardIndex;
 
-            sf::Clock m_SwitchTurnTimer;
+            sf::Clock m_TurnTimer;
         };
     }
 }

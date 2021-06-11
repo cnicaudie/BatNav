@@ -5,12 +5,14 @@
 #include "GameManager.h"
 #include "GameplayIncludes.h"
 #include "../UI/UIManager.h"
+#include "../UI/UIViewModel.h"
 
 namespace BatNav
 {
     namespace Gameplay
     {
         static constexpr float SWITCH_TURN_COOLDOWN = 1.f;
+        static constexpr float TURN_TIMEOUT = 20.f;
 
         GameManager* GameManager::m_GameManager = nullptr;
 
@@ -79,10 +81,18 @@ namespace BatNav
                 }
                 else if (m_CurrentState == GameState::PLAYING)
                 {
+                    if (m_TurnTimer.getElapsedTime().asSeconds() >= TURN_TIMEOUT)
+                    {
+                        LOG_INFO("Turn Timeout !");
+                        SwitchCurrentBoard();
+                    }
+
                     CheckAttacks();
+
+                    UI::UIViewModel::GetInstance()->SetTurnTime(m_TurnTimer.getElapsedTime().asSeconds());
                 }
                 else if ((m_CurrentState == GameState::SWITCHING_TURNS)
-                    && (m_SwitchTurnTimer.getElapsedTime().asSeconds() >= SWITCH_TURN_COOLDOWN))
+                    && (m_TurnTimer.getElapsedTime().asSeconds() >= SWITCH_TURN_COOLDOWN))
                 {
                     SwitchCurrentBoard();
                     m_CurrentState = GameState::PLAYING;
@@ -94,10 +104,12 @@ namespace BatNav
         {
             LOG_DEBUG("Switching current board");
 
-            m_Boards[m_CurrentBoardIndex].ResetAttack();
             m_Boards[m_CurrentBoardIndex].ResetCurrent();
+            m_Boards[m_CurrentBoardIndex].ResetAttack();
             m_CurrentBoardIndex = (m_CurrentBoardIndex + 1) % m_Boards.size();
             m_Boards[m_CurrentBoardIndex].SetToCurrent();
+
+            m_TurnTimer.restart();
         }
 
         void GameManager::CheckAttacks()
@@ -107,7 +119,7 @@ namespace BatNav
                 LOG_DEBUG("Attack detected!");
 
                 m_CurrentState = GameState::SWITCHING_TURNS;
-                m_SwitchTurnTimer.restart();
+                m_TurnTimer.restart();
             }
         }
 

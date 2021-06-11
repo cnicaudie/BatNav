@@ -3,6 +3,7 @@
 //
 
 #include "UIManager.h"
+#include "UIViewModel.h"
 #include "../Engine/Event/EventManager.h"
 #include "../Engine/Log/Log.h"
 #include "../Gameplay/Events/BoardEvent.h"
@@ -37,6 +38,12 @@ namespace BatNav
         void UIManager::InitTexts(const sf::Vector2f& WINDOW_CENTER)
         {
             // === In Game UI
+            m_TurnTimeText.setFont(m_MainFont);
+            m_TurnTimeText.setCharacterSize(30);
+            m_TurnTimeText.setFillColor(sf::Color::White);
+            m_TurnTimeText.setString("0");
+            m_TurnTimeText.setStyle(sf::Text::Bold);
+            m_TurnTimeText.setPosition(WINDOW_CENTER.x - 200.f - (m_TurnTimeText.getGlobalBounds().width / 2), WINDOW_CENTER.y - 50.f);
 
             // === Main Menu
             /*m_MainTitle.setFont(m_MainFont);
@@ -46,6 +53,7 @@ namespace BatNav
             m_MainTitle.setStyle(sf::Text::Bold);
             m_MainTitle.setPosition(WINDOW_CENTER.x - (m_MainTitle.getGlobalBounds().width / 2), WINDOW_CENTER.y * 0.15f);
             */
+
             // === End Level/Game Menu
 
             m_EndGameText.setFont(m_MainFont);
@@ -106,6 +114,8 @@ namespace BatNav
         void UIManager::UpdateTexts()
         {
             // TODO : Score ?
+
+            m_TurnTimeText.setString(std::to_string(UIViewModel::GetInstance()->GetTurnTime()));
         }
 
         void UIManager::ManageButtons()
@@ -159,6 +169,7 @@ namespace BatNav
                     target.draw(m_RandomButton);
                 }
 
+                target.draw(m_TurnTimeText);
                 //target.draw(m_EndGameText);
             }
         }
