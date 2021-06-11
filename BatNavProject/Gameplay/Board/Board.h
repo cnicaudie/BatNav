@@ -17,10 +17,13 @@ namespace BatNav
         class Board : public sf::Drawable, public sf::Transformable
         {
         public:
-            Board(const bool isCurrent);
+            Board(const bool isPlayer, const bool isCurrent);
             ~Board();
 
             void Update(const sf::Vector2f& cursorPosition);
+            void UpdatePlayer(const sf::Vector2f &cursorPosition);
+            void UpdateRandom();
+
             void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
             // Attack management
@@ -57,9 +60,12 @@ namespace BatNav
             int GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const;
             Boat* GetBoatFromTileIndex();
 
+            // Attacks management
+            void AttackRandom();
+            void HandleAttack();
+
             // Events management
             void OnEvent(const Engine::Event* evnt);
-            void HandleAttack();
 
             //====================//
 
@@ -74,9 +80,11 @@ namespace BatNav
             int m_SelectedTileIndex;
             int m_SelectedBoatIndex;
 
+            bool m_IsPlayer;
             bool m_IsCurrent;
             bool m_WasAttacked;
 
+            // Boat management
             bool m_CanPlaceBoat;
             bool m_PlacedAllBoats;
             bool m_SunkAllBoats;
