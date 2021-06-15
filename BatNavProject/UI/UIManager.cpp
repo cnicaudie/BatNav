@@ -43,7 +43,7 @@ namespace BatNav
             m_TurnTimeText.setFillColor(sf::Color::White);
             m_TurnTimeText.setString("0");
             m_TurnTimeText.setStyle(sf::Text::Bold);
-            m_TurnTimeText.setPosition(WINDOW_CENTER.x - 200.f - (m_TurnTimeText.getGlobalBounds().width / 2), WINDOW_CENTER.y - 50.f);
+            m_TurnTimeText.setPosition(WINDOW_CENTER.x - 100.f - (m_TurnTimeText.getGlobalBounds().width / 2), WINDOW_CENTER.y - 50.f);
 
             // === Main Menu
             /*m_MainTitle.setFont(m_MainFont);
@@ -85,13 +85,13 @@ namespace BatNav
 
             // === Boat Placement Menu
 
-            const sf::Vector2f randomButtonPosition{ WINDOW_CENTER.x - 2 * BUTTONS_OFFSET, WINDOW_CENTER.y - 2 * BUTTONS_OFFSET};
+            const sf::Vector2f randomButtonPosition{ WINDOW_CENTER.x - BUTTONS_OFFSET, WINDOW_CENTER.y - 2 * BUTTONS_OFFSET};
             m_RandomButton.SetButtonPosition(randomButtonPosition);
             m_RandomButton.SetButtonTextFont(m_MainFont);
             m_RandomButton.SetButtonTextString("Random");
             m_RandomButton.SetButtonTextPosition(randomButtonPosition);
 
-            const sf::Vector2f confirmButtonPosition{ WINDOW_CENTER.x - 2 * BUTTONS_OFFSET, WINDOW_CENTER.y - BUTTONS_OFFSET };
+            const sf::Vector2f confirmButtonPosition{ WINDOW_CENTER.x - BUTTONS_OFFSET, WINDOW_CENTER.y - BUTTONS_OFFSET };
             m_ConfirmButton.SetButtonPosition(confirmButtonPosition);
             m_ConfirmButton.SetButtonTextFont(m_MainFont);
             m_ConfirmButton.SetButtonTextString("Confirm");
