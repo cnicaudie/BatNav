@@ -6,7 +6,6 @@
 
 #include <vector>
 #include <array>
-
 #include "../../Engine/Event/EventTypes/Event.h"
 #include "../Boats/Boat.h"
 
@@ -17,16 +16,16 @@ namespace BatNav
         class Board : public sf::Drawable, public sf::Transformable
         {
         public:
-            Board(const bool isPlayer, const bool isCurrent);
+            Board(const bool isCurrent);
             ~Board();
 
             void Update(const sf::Vector2f& cursorPosition);
-            void UpdatePlayer(const sf::Vector2f &cursorPosition);
-            void UpdateRandom();
 
             void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
             // Attack management
+            void AttackRandom();
+            void HandleAttack();
             inline bool WasAttacked() const { return m_WasAttacked && !m_SunkAllBoats; }
             inline void ResetAttack() { m_WasAttacked = false; }
 
@@ -34,7 +33,9 @@ namespace BatNav
             inline void SetToCurrent() { m_IsCurrent = true; }
             inline void ResetCurrent() { m_IsCurrent = false; }
 
-            // Boat placement check
+            // Boat management
+            void PlaceBoat();
+            void PlaceAllBoatsRandom(const bool autoConfirmation = false);
             inline bool PlacedAllBoats() const { return m_PlacedAllBoats && m_ConfirmedPlacement; }
 
         private:
@@ -53,16 +54,10 @@ namespace BatNav
             void InitBoats();
             void SelectBoatToPlace();
             void CheckBoatPlacement(const Boat &boat);
-            void PlaceBoat();
             void RotateBoat();
             void MoveBoat(Boat *boat);
-            void PlaceAllBoatsRandom();
             int GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const;
             Boat* GetBoatFromTileIndex();
-
-            // Attacks management
-            void AttackRandom();
-            void HandleAttack();
 
             // Events management
             void OnEvent(const Engine::Event* evnt);
@@ -80,7 +75,6 @@ namespace BatNav
             int m_SelectedTileIndex;
             int m_SelectedBoatIndex;
 
-            bool m_IsPlayer;
             bool m_IsCurrent;
             bool m_WasAttacked;
 

@@ -6,12 +6,13 @@
 #include "GameplayIncludes.h"
 #include "../UI/UIManager.h"
 #include "../UI/UIViewModel.h"
+#include "../Engine/Event/EventTypes/ClickEvent.h"
 
 namespace BatNav
 {
     namespace Gameplay
     {
-        static constexpr float SWITCH_TURN_COOLDOWN = 1.f;
+        static constexpr float SWITCH_TURN_COOLDOWN = 1.5f;
         static constexpr float TURN_TIMEOUT = 20.f;
 
         GameManager* GameManager::m_GameManager = nullptr;
@@ -30,9 +31,9 @@ namespace BatNav
                 : Game{ "BatNav (WIP)" }
                 , m_UIManager{ std::make_unique<UI::UIManager>(&m_Window) }
                 , m_CurrentState(GameState::NOT_STARTED)
-                , m_Boards{ Board(true, true)
-                           , Board(false, false) }
-                , m_CurrentBoardIndex(0)
+                , m_Players{Player(false, true)
+                            , Player(true, false)}
+                , m_CurrentPlayerIndex(0)
         {
             // Center the view
             sf::View gameView;
@@ -41,13 +42,17 @@ namespace BatNav
 
             // Event listeners configuration
             Engine::EventListener<GameManager, Engine::Event> listenerEvent(this, &GameManager::OnEvent);
+            Engine::EventListener<GameManager, Engine::ClickEvent> listenerClickEvent(this, &GameManager::OnEvent);
             Engine::EventManager::GetInstance()->AddListener(listenerEvent);
+            Engine::EventManager::GetInstance()->AddListener(listenerClickEvent);
         }
 
         GameManager::~GameManager()
         {
             Engine::EventListener<GameManager, Engine::Event> listenerEvent(this, &GameManager::OnEvent);
+            Engine::EventListener<GameManager, Engine::ClickEvent> listenerClickEvent(this, &GameManager::OnEvent);
             Engine::EventManager::GetInstance()->RemoveListener(listenerEvent);
+            Engine::EventManager::GetInstance()->RemoveListener(listenerClickEvent);
 
             delete m_GameManager;
         }
@@ -62,22 +67,29 @@ namespace BatNav
 
             if (m_CurrentState != GameState::NOT_STARTED)
             {
-                m_Boards[m_CurrentBoardIndex].Update(mousePosition);
+                auto currentBoardIndex = GetCurrentBoardIndex();
+                Board& currentBoard = m_Players[currentBoardIndex].GetBoard();
+                Player& currentPlayer = m_Players[m_CurrentPlayerIndex];
+
+                currentBoard.Update(mousePosition);
 
                 if (m_CurrentState == GameState::PLACING_BOATS)
                 {
                     static int boatPlacementCount = 0;
 
-                    if (m_Boards[m_CurrentBoardIndex].PlacedAllBoats())
+                    if (currentBoard.PlacedAllBoats())
                     {
-                        SwitchCurrentBoard();
-
-                        ++boatPlacementCount;
-
-                        if (boatPlacementCount == m_Boards.size())
+                        if (++boatPlacementCount == m_Players.size())
                         {
+                            LOG_INFO("The battle has started !");
                             m_CurrentState = GameState::PLAYING;
                         }
+
+                        SwitchTurns(currentBoard);
+                    }
+                    else if (currentPlayer.IsRandom())
+                    {
+                        currentBoard.PlaceAllBoatsRandom(true);
                     }
                 }
                 else if (m_CurrentState == GameState::PLAYING)
@@ -85,39 +97,54 @@ namespace BatNav
                     if (m_TurnTimer.getElapsedTime().asSeconds() >= TURN_TIMEOUT)
                     {
                         LOG_INFO("Turn Timeout !");
-                        SwitchCurrentBoard();
+                        SwitchTurns(currentBoard);
                     }
 
-                    CheckAttacks();
+                    if (currentPlayer.IsRandom())
+                    {
+                        currentBoard.AttackRandom();
+                    }
+
+                    CheckAttacks(currentBoard);
 
                     UI::UIViewModel::GetInstance()->SetTurnTime(m_TurnTimer.getElapsedTime().asSeconds());
                 }
                 else if ((m_CurrentState == GameState::SWITCHING_TURNS)
                     && (m_TurnTimer.getElapsedTime().asSeconds() >= SWITCH_TURN_COOLDOWN))
                 {
-                    SwitchCurrentBoard();
+                    SwitchTurns(currentBoard);
                     m_CurrentState = GameState::PLAYING;
                 }
             }
         }
 
-        void GameManager::SwitchCurrentBoard()
+        unsigned long GameManager::GetCurrentBoardIndex() const
+        {
+            return m_CurrentState == GameState::PLACING_BOATS
+                        ? m_CurrentPlayerIndex
+                        : (m_CurrentPlayerIndex + 1) % m_Players.size();
+        }
+
+        void GameManager::SwitchTurns(Board& currentBoard)
         {
             LOG_DEBUG("Switching current board");
 
-            m_Boards[m_CurrentBoardIndex].ResetCurrent();
-            m_Boards[m_CurrentBoardIndex].ResetAttack();
-            m_CurrentBoardIndex = (m_CurrentBoardIndex + 1) % m_Boards.size();
-            m_Boards[m_CurrentBoardIndex].SetToCurrent();
+            currentBoard.ResetCurrent();
+            currentBoard.ResetAttack();
+
+            m_CurrentPlayerIndex = (m_CurrentPlayerIndex + 1) % m_Players.size();
+
+            auto currentBoardIndex = GetCurrentBoardIndex();
+            m_Players[currentBoardIndex].GetBoard().SetToCurrent();
 
             m_TurnTimer.restart();
         }
 
-        void GameManager::CheckAttacks()
+        void GameManager::CheckAttacks(Board& currentBoard)
         {
-            if (m_Boards[m_CurrentBoardIndex].WasAttacked())
+            if (currentBoard.WasAttacked())
             {
-                LOG_DEBUG("Attack detected!");
+                LOG_INFO("Attack detected!");
 
                 m_CurrentState = GameState::SWITCHING_TURNS;
                 m_TurnTimer.restart();
@@ -130,7 +157,7 @@ namespace BatNav
 
             if (m_CurrentState != GameState::NOT_STARTED)
             {
-                target.draw(m_Boards[m_CurrentBoardIndex]);
+                target.draw(m_Players[GetCurrentBoardIndex()].GetBoard());
             }
 
             target.draw(*m_UIManager);
@@ -138,13 +165,40 @@ namespace BatNav
 
         void GameManager::OnEvent(const Engine::Event* evnt)
         {
-            if (evnt->GetEventType() == Engine::EventType::START_GAME)
+            const auto* clickEvent = dynamic_cast<const Engine::ClickEvent*>(evnt);
+
+            if (clickEvent != nullptr && !clickEvent->IsRightClick())
             {
+                Board& currentBoard = m_Players[GetCurrentBoardIndex()].GetBoard();
+                Player& currentPlayer = m_Players[m_CurrentPlayerIndex];
+
+                switch (m_CurrentState)
+                {
+                    case GameState::PLACING_BOATS:
+                    {
+                        currentPlayer.PlaceBoat();
+                        break;
+                    }
+
+                    case GameState::PLAYING:
+                    {
+                        currentPlayer.Attack(currentBoard);
+                        break;
+                    }
+
+                    default:
+                        break;
+                }
+            }
+            else if (evnt->GetEventType() == Engine::EventType::START_GAME)
+            {
+                LOG_INFO("GAME STARTED !!!");
                 m_CurrentState = GameState::PLACING_BOATS;
             }
             else if (evnt->GetEventType() == Engine::EventType::END_GAME)
             {
                 LOG_INFO("GAME OVER !!!");
+                LOG_INFO("Player " << m_CurrentPlayerIndex << " won !");
                 m_CurrentState = GameState::OVER;
             }
         }

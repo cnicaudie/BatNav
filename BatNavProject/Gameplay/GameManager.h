@@ -6,6 +6,7 @@
 
 #include "../Engine/Game.h"
 #include "./Board/Board.h"
+#include "./Player/Player.h"
 
 namespace BatNav
 {
@@ -28,14 +29,15 @@ namespace BatNav
 
             //inline const bool IsGameOver() const { return m_CurrentState == GameState::OVER; }
             inline const bool IsPlacingBoats() const { return m_CurrentState == GameState::PLACING_BOATS; }
-            inline const bool HasStarted() const { return m_CurrentState != GameState::NOT_STARTED; }
 
         private:
             GameManager();
             ~GameManager();
 
-            void CheckAttacks();
-            void SwitchCurrentBoard();
+            unsigned long GetCurrentBoardIndex() const;
+
+            void CheckAttacks(Board& currentBoard);
+            void SwitchTurns(Board& currentBoard);
 
             void OnEvent(const Engine::Event* evnt);
 
@@ -54,8 +56,8 @@ namespace BatNav
                 OVER            = 4
             } m_CurrentState;
 
-            std::array<Board, 2> m_Boards;
-            int m_CurrentBoardIndex;
+            std::array<Player, 2> m_Players;
+            int m_CurrentPlayerIndex;
 
             sf::Clock m_TurnTimer;
         };

@@ -16,10 +16,9 @@ namespace BatNav
         static const sf::Vector2u BOARD_SIZE { 10, 10 };
         static const sf::Vector2u TILE_SIZE { 32, 32 };
 
-        Board::Board(const bool isPlayer, const bool isCurrent)
+        Board::Board(const bool isCurrent)
             : m_Board(BOARD_SIZE.x * BOARD_SIZE.y, TileType::WATER)
             , m_Boats()
-            , m_IsPlayer(isPlayer)
             , m_IsCurrent(isCurrent)
             , m_WasAttacked(false)
             , m_CanPlaceBoat(false)
@@ -46,6 +45,8 @@ namespace BatNav
             Engine::EventListener<Board, BoardEvent> listenerBoardEvent(this, &Board::OnEvent);
             Engine::EventManager::GetInstance()->AddListener(listenerClickEvent);
             Engine::EventManager::GetInstance()->AddListener(listenerBoardEvent);
+
+            LOG_INFO("Created Board");
         }
 
         Board::~Board()
@@ -54,6 +55,8 @@ namespace BatNav
             Engine::EventListener<Board, BoardEvent> listenerBoardEvent(this, &Board::OnEvent);
             Engine::EventManager::GetInstance()->RemoveListener(listenerClickEvent);
             Engine::EventManager::GetInstance()->RemoveListener(listenerBoardEvent);
+
+            LOG_INFO("Destroyed Board");
         }
 
         void Board::Update(const sf::Vector2f& cursorPosition)
@@ -69,38 +72,20 @@ namespace BatNav
                 return;
             }
 
-            if (m_WasAttacked) return;
+            if (m_WasAttacked || !m_IsCurrent) return;
 
-            m_IsPlayer ? UpdatePlayer(cursorPosition) : UpdateRandom();
-        }
-
-        void Board::UpdatePlayer(const sf::Vector2f &cursorPosition)
-        {
-            if (GameManager::GetInstance()->IsPlacingBoats() && !m_PlacedAllBoats)
-            {
-                SelectBoatToPlace();
-            }
-
-            if (cursorPosition.x > 0.f && cursorPosition.x < static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
-                && cursorPosition.y > 0.f && cursorPosition.y < static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
-            {
-                ManageTileSelection(cursorPosition);
-            }
-        }
-
-        void Board::UpdateRandom()
-        {
             if (GameManager::GetInstance()->IsPlacingBoats())
             {
                 if (!m_PlacedAllBoats)
                 {
-                    PlaceAllBoatsRandom();
-                    m_ConfirmedPlacement = true;
+                    SelectBoatToPlace();
                 }
             }
-            else
+
+            if (cursorPosition.x > 0.f && cursorPosition.x < static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
+                    && cursorPosition.y > 0.f && cursorPosition.y < static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
             {
-                AttackRandom();
+                    ManageTileSelection(cursorPosition);
             }
         }
 
@@ -317,6 +302,8 @@ namespace BatNav
                     break;
                 }
             }
+
+            if (m_PlacedAllBoats) m_CanPlaceBoat = false;
         }
 
         void Board::CheckBoatPlacement(const Boat &boat)
@@ -340,21 +327,24 @@ namespace BatNav
 
         void Board::PlaceBoat()
         {
-            UnselectTiles();
-
-            Boat& boat = m_Boats[m_SelectedBoatIndex];
-
-            for (int k = 0; k < boat.GetSize(); k++)
+            if (m_CanPlaceBoat && !m_PlacedAllBoats)
             {
-                int tileIndex = GetBoatTileOffsetIndex(boat.IsVertical(), k, m_SelectedTileIndex);
-                m_Board[tileIndex] = TileType::BOAT;
-                UpdateTileOnBoard(tileIndex);
+                UnselectTiles();
+
+                Boat& boat = m_Boats[m_SelectedBoatIndex];
+
+                for (int k = 0; k < boat.GetSize(); k++)
+                {
+                    int tileIndex = GetBoatTileOffsetIndex(boat.IsVertical(), k, m_SelectedTileIndex);
+                    m_Board[tileIndex] = TileType::BOAT;
+                    UpdateTileOnBoard(tileIndex);
+                }
+
+                boat.SetPositionIndex(m_SelectedTileIndex);
+                LOG_DEBUG("Placed boat of type " << boat.GetName() << " at index " << boat.GetPositionIndex());
+
+                boat.Place();
             }
-
-            boat.SetPositionIndex(m_SelectedTileIndex);
-            LOG_DEBUG("Placed boat of type " << boat.GetName() << " at index " << boat.GetPositionIndex());
-
-            boat.Place();
         }
 
         void Board::RotateBoat()
@@ -386,7 +376,7 @@ namespace BatNav
             m_SelectedBoatIndex = boat - m_Boats.begin();
         }
 
-        void Board::PlaceAllBoatsRandom()
+        void Board::PlaceAllBoatsRandom(const bool autoConfirmation)
         {
             LOG_INFO("Random boat placement...");
 
@@ -429,6 +419,9 @@ namespace BatNav
             }
 
             m_PlacedAllBoats = true;
+            m_CanPlaceBoat = false;
+
+            if (autoConfirmation) m_ConfirmedPlacement = true;
         }
 
         int Board::GetBoatTileOffsetIndex(const bool isBoatVertical, const int k, const int startIndex) const
@@ -469,12 +462,14 @@ namespace BatNav
 
         void Board::AttackRandom()
         {
+            UnselectTiles();
+
             do
             {
-                m_SelectedTileIndex = Engine::Maths::GetRandomFloat
+                m_SelectedTileIndex = static_cast<int>(Engine::Maths::GetRandomFloat
                         (
                                 0.f, static_cast<float>(BOARD_SIZE.x * BOARD_SIZE.y)
-                        );
+                        ));
 
                 HandleAttack();
             }
@@ -483,48 +478,51 @@ namespace BatNav
 
         void Board::HandleAttack()
         {
-            if (m_Board[m_SelectedTileIndex] == TileType::TOUCHED
-                || m_Board[m_SelectedTileIndex] == TileType::MISSED)
+            if (!m_WasAttacked)
             {
-                LOG_WARNING("Can't attack a already attacked tile");
-            }
-            else
-            {
-                m_WasAttacked = true;
-
-                // Attack in water
-                if (m_Board[m_SelectedTileIndex] == TileType::WATER)
+                if (m_Board[m_SelectedTileIndex] == TileType::TOUCHED
+                    || m_Board[m_SelectedTileIndex] == TileType::MISSED)
                 {
-                    m_Board[m_SelectedTileIndex] = TileType::MISSED;
-                    LOG_INFO("You missed!");
+                    LOG_WARNING("Can't attack a already attacked tile");
                 }
-                // Attack on a boat
-                else if (m_Board[m_SelectedTileIndex] == TileType::BOAT)
+                else
                 {
-                    m_Board[m_SelectedTileIndex] = TileType::TOUCHED;
+                    m_WasAttacked = true;
 
-                    // Retrieve the boat
-                    Boat* boat = GetBoatFromTileIndex();
-
-                    // Mark it as touched
-                    boat->Touch();
-
-                    // Check if he's sunk
-                    if (boat->HasSunk())
+                    // Attack in water
+                    if (m_Board[m_SelectedTileIndex] == TileType::WATER)
                     {
-                        // TODO : Add score ?
-                        LOG_INFO("You sunk a boat of type : " << boat->GetName());
+                        m_Board[m_SelectedTileIndex] = TileType::MISSED;
+                        LOG_INFO("You missed!");
+                    }
+                    // Attack on a boat
+                    else if (m_Board[m_SelectedTileIndex] == TileType::BOAT)
+                    {
+                        m_Board[m_SelectedTileIndex] = TileType::TOUCHED;
 
-                        m_SunkBoats += 1;
+                        // Retrieve the boat
+                        Boat* boat = GetBoatFromTileIndex();
 
-                        if (m_SunkBoats == m_Boats.size())
+                        // Mark it as touched
+                        boat->Touch();
+
+                        // Check if he's sunk
+                        if (boat->HasSunk())
                         {
-                            m_SunkAllBoats = true;
+                            // TODO : Add score ?
+                            LOG_INFO("You sunk a boat of type : " << boat->GetName());
+
+                            m_SunkBoats += 1;
+
+                            if (m_SunkBoats == m_Boats.size())
+                            {
+                                m_SunkAllBoats = true;
+                            }
                         }
                     }
-                }
 
-                UpdateTileOnBoard(m_SelectedTileIndex);
+                    UpdateTileOnBoard(m_SelectedTileIndex);
+                }
             }
         }
 
@@ -568,60 +566,50 @@ namespace BatNav
                         }
                         break;
                     }
+
+                    default:
+                        LOG_WARNING("Unexpected event.");
+                        break;
                 }
             }
-            else if (!m_WasAttacked && clickEvent != nullptr)
+            else if (clickEvent != nullptr && GameManager::GetInstance()->IsPlacingBoats())
             {
+                const sf::Vector2f clickPosition = clickEvent->GetClickPosition();
+
+                if (clickPosition.x < 0.f || clickPosition.x > static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
+                    || clickPosition.y < 0.f || clickPosition.y > static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
+                {
+                    return;
+                }
+
                 if (clickEvent->IsRightClick())
                 {
-                    if (GameManager::GetInstance()->IsPlacingBoats() && !m_PlacedAllBoats)
+                    if (!m_PlacedAllBoats)
                     {
                         RotateBoat();
                     }
                 }
                 else
                 {
-                    const sf::Vector2f clickPosition = clickEvent->GetClickPosition();
-
-                    // Check that click happened within the board limits
-                    if (clickPosition.x < 0.f || clickPosition.x > static_cast<float>(BOARD_SIZE.x * TILE_SIZE.x)
-                        || clickPosition.y < 0.f || clickPosition.y > static_cast<float>(BOARD_SIZE.y * TILE_SIZE.y))
+                    if (!m_CanPlaceBoat)
                     {
-                        LOG_WARNING("Click outside of the board.");
-                        return;
-                    }
+                        Boat* boat = GetBoatFromTileIndex();
 
-                    if (GameManager::GetInstance()->IsPlacingBoats())
-                    {
-                        if (m_CanPlaceBoat && !m_PlacedAllBoats)
+                        if (boat != m_Boats.end())
                         {
-                            PlaceBoat();
+                            MoveBoat(boat);
+                        }
+                        else if (m_PlacedAllBoats)
+                        {
+                            LOG_WARNING("All boats were placed !");
                         }
                         else
                         {
-                            Boat* boat = GetBoatFromTileIndex();
-
-                            if (boat != m_Boats.end())
-                            {
-                                MoveBoat(boat);
-                            }
-                            else if (m_PlacedAllBoats)
-                            {
-                                LOG_WARNING("All boats were placed !");
-                            }
-                            else
-                            {
-                                LOG_WARNING("Can't place this boat here !");
-                            }
+                            LOG_WARNING("Can't place this boat here !");
                         }
-                    }
-                    else if (GameManager::GetInstance()->HasStarted())
-                    {
-                        HandleAttack();
                     }
                 }
             }
         }
-
     }
 }
