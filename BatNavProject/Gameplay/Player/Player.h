@@ -13,7 +13,7 @@ namespace BatNav
         class Player
         {
         public:
-            Player(const bool isRandom, const bool isCurrent);
+            Player(const bool isRandom, const bool isCurrent, const bool displayBoats);
 
             //void Update();
 

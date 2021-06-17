@@ -16,7 +16,7 @@ namespace BatNav
         class Board : public sf::Drawable, public sf::Transformable
         {
         public:
-            Board(const bool isCurrent);
+            Board(const bool isCurrent, const bool displayBoats);
             ~Board();
 
             void Update(const sf::Vector2f& cursorPosition);
@@ -72,13 +72,15 @@ namespace BatNav
                 TOUCHED     = 3
             };
 
-            int m_SelectedTileIndex;
-            int m_SelectedBoatIndex;
-
             bool m_IsCurrent;
             bool m_WasAttacked;
 
+            // Selection management
+            int m_SelectedTileIndex;
+            int m_SelectedBoatIndex;
+
             // Boat management
+            bool m_DisplayBoats;
             bool m_CanPlaceBoat;
             bool m_PlacedAllBoats;
             bool m_SunkAllBoats;

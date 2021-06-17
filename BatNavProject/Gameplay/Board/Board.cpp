@@ -16,11 +16,12 @@ namespace BatNav
         static const sf::Vector2u BOARD_SIZE { 10, 10 };
         static const sf::Vector2u TILE_SIZE { 32, 32 };
 
-        Board::Board(const bool isCurrent)
+        Board::Board(const bool isCurrent, const bool displayBoats)
             : m_Board(BOARD_SIZE.x * BOARD_SIZE.y, TileType::WATER)
             , m_Boats()
             , m_IsCurrent(isCurrent)
             , m_WasAttacked(false)
+            , m_DisplayBoats(displayBoats)
             , m_CanPlaceBoat(false)
             , m_PlacedAllBoats(false)
             , m_SunkAllBoats(false)
@@ -153,9 +154,9 @@ namespace BatNav
                 case TileType::MISSED:
                     return 3;
 
-                    // TODO : Temporary representation (have a sprite in the Boat class)
+                // TODO : Temporary representation (have a sprite in the Boat class)
                 case TileType::BOAT:
-                    return 4;
+                    return m_DisplayBoats ? 4 : 1;
 
                 case TileType::TOUCHED:
                     return 2;

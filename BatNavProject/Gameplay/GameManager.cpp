@@ -31,8 +31,8 @@ namespace BatNav
                 : Game{ "BatNav (WIP)" }
                 , m_UIManager{ std::make_unique<UI::UIManager>(&m_Window) }
                 , m_CurrentState(GameState::NOT_STARTED)
-                , m_Players{Player(false, true)
-                            , Player(true, false)}
+                , m_Players{Player(false, true, true)
+                            , Player(true, false, false)}
                 , m_CurrentPlayerIndex(0)
         {
             // Center the view

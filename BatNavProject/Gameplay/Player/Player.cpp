@@ -8,8 +8,8 @@ namespace BatNav
 {
     namespace Gameplay
     {
-        Player::Player(const bool isRandom, const bool isCurrent)
-            : m_IsRandom(isRandom), m_Score(0), m_Board(isCurrent)
+        Player::Player(const bool isRandom, const bool isCurrent, const bool displayBoats)
+            : m_IsRandom(isRandom), m_Score(0), m_Board(isCurrent, displayBoats)
         {}
 
         void Player::PlaceBoat()
