@@ -5,11 +5,14 @@
 #pragma once
 
 #include "EngineIncludes.h"
+#include "./Input/InputManager.h"
 
 namespace BatNav
 {
     namespace Engine
     {
+        class InputManager;
+
         class Game
         {
         public:
@@ -20,13 +23,12 @@ namespace BatNav
 
         protected:
             virtual void Update(float deltaTime) = 0;
-            //virtual void UpdateGUI(float deltaTime) = 0;
             virtual void Render(sf::RenderTarget& target) = 0;
-            //virtual void RenderGUI(sf::RenderTarget& target) = 0;
 
             //====================//
 
             sf::RenderWindow m_Window;
+            std::shared_ptr<InputManager> m_InputManager;
         };
     }
 }
