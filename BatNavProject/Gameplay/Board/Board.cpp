@@ -31,7 +31,7 @@ namespace BatNav
             , m_SelectedTileIndex(0)
         {
             // Board loading
-            if (!m_TileSet.loadFromFile("../Assets/tiles_test.png"))
+            if (!m_TileSet.loadFromFile("../Assets/batnav_sheet.png"))
             {
                 LOG_ERROR("TileSet was not loaded correctly !");
             }
@@ -149,20 +149,20 @@ namespace BatNav
             switch (m_Board[tileIndex])
             {
                 case TileType::WATER:
-                    return 1;
+                    return 0;
 
                 case TileType::MISSED:
-                    return 3;
+                    return 1;
 
                 // TODO : Temporary representation (have a sprite in the Boat class)
                 case TileType::BOAT:
-                    return m_DisplayBoats ? 4 : 1;
+                    return m_DisplayBoats ? 3 : 0;
 
                 case TileType::TOUCHED:
                     return 2;
 
                 default:
-                    return 4;
+                    return 3;
             }
         }
 
