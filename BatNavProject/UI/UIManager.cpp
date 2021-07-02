@@ -37,13 +37,15 @@ namespace BatNav
 
         void UIManager::InitTexts(const sf::Vector2f& WINDOW_CENTER)
         {
+            const float TEXT_OFFSET = 150.f;
+
             // === In Game UI
             m_TurnTimeText.setFont(m_MainFont);
             m_TurnTimeText.setCharacterSize(30);
             m_TurnTimeText.setFillColor(sf::Color::White);
             m_TurnTimeText.setString("0");
             m_TurnTimeText.setStyle(sf::Text::Bold);
-            m_TurnTimeText.setPosition(WINDOW_CENTER.x - 100.f - (m_TurnTimeText.getGlobalBounds().width / 2), WINDOW_CENTER.y - 50.f);
+            m_TurnTimeText.setPosition(WINDOW_CENTER.x - TEXT_OFFSET - (m_TurnTimeText.getGlobalBounds().width / 2), WINDOW_CENTER.y - TEXT_OFFSET / 3);
 
             // === Main Menu
             /*m_MainTitle.setFont(m_MainFont);
@@ -58,26 +60,26 @@ namespace BatNav
 
             m_EndGameText.setFont(m_MainFont);
             m_EndGameText.setCharacterSize(50);
-            m_EndGameText.setFillColor(sf::Color::Green);
-            m_EndGameText.setString("YOU WON !!!");
+            m_EndGameText.setFillColor(sf::Color::White);
+            m_EndGameText.setString("GAME OVER");
             m_EndGameText.setStyle(sf::Text::Bold);
-            m_EndGameText.setPosition(WINDOW_CENTER.x - (m_EndGameText.getGlobalBounds().width / 2)
-                    , WINDOW_CENTER.y - (m_EndGameText.getGlobalBounds().height / 2));
+            m_EndGameText.setPosition(WINDOW_CENTER.x - TEXT_OFFSET - (m_EndGameText.getGlobalBounds().width / 2), WINDOW_CENTER.y -  2 * TEXT_OFFSET);
         }
 
         void UIManager::InitButtons(const sf::Vector2f& WINDOW_CENTER)
         {
-            const float BUTTONS_OFFSET = 100.f;
+            const float MAIN_MENU_BUTTONS_OFFSET = 100.f;
+            const float IN_GAME_BUTTONS_OFFSET = 100.f;
 
             // === Main Menu
 
-            const sf::Vector2f startButtonPosition{ WINDOW_CENTER.x - 3 * BUTTONS_OFFSET, WINDOW_CENTER.y - 2 * BUTTONS_OFFSET };
+            const sf::Vector2f startButtonPosition{ WINDOW_CENTER.x - 3 * MAIN_MENU_BUTTONS_OFFSET, WINDOW_CENTER.y - 2 * MAIN_MENU_BUTTONS_OFFSET };
             m_StartButton.SetButtonPosition(startButtonPosition);
             m_StartButton.SetButtonTextFont(m_MainFont);
             m_StartButton.SetButtonTextString("Start");
             m_StartButton.SetButtonTextPosition(startButtonPosition);
 
-            const sf::Vector2f closeButtonPosition{ WINDOW_CENTER.x - 3 * BUTTONS_OFFSET, WINDOW_CENTER.y - BUTTONS_OFFSET };
+            const sf::Vector2f closeButtonPosition{ WINDOW_CENTER.x - 3 * MAIN_MENU_BUTTONS_OFFSET, WINDOW_CENTER.y - MAIN_MENU_BUTTONS_OFFSET };
             m_CloseButton.SetButtonPosition(closeButtonPosition);
             m_CloseButton.SetButtonTextFont(m_MainFont);
             m_CloseButton.SetButtonTextString("Quit");
@@ -85,13 +87,13 @@ namespace BatNav
 
             // === Boat Placement Menu
 
-            const sf::Vector2f randomButtonPosition{ WINDOW_CENTER.x - BUTTONS_OFFSET, WINDOW_CENTER.y - 2 * BUTTONS_OFFSET};
+            const sf::Vector2f randomButtonPosition{ WINDOW_CENTER.x - IN_GAME_BUTTONS_OFFSET - 50.f, WINDOW_CENTER.y - 2 * IN_GAME_BUTTONS_OFFSET};
             m_RandomButton.SetButtonPosition(randomButtonPosition);
             m_RandomButton.SetButtonTextFont(m_MainFont);
             m_RandomButton.SetButtonTextString("Random");
             m_RandomButton.SetButtonTextPosition(randomButtonPosition);
 
-            const sf::Vector2f confirmButtonPosition{ WINDOW_CENTER.x - BUTTONS_OFFSET, WINDOW_CENTER.y - BUTTONS_OFFSET };
+            const sf::Vector2f confirmButtonPosition{ WINDOW_CENTER.x - IN_GAME_BUTTONS_OFFSET - 50.f, WINDOW_CENTER.y - IN_GAME_BUTTONS_OFFSET };
             m_ConfirmButton.SetButtonPosition(confirmButtonPosition);
             m_ConfirmButton.SetButtonTextFont(m_MainFont);
             m_ConfirmButton.SetButtonTextString("Confirm");
@@ -168,9 +170,14 @@ namespace BatNav
                     target.draw(m_ConfirmButton);
                     target.draw(m_RandomButton);
                 }
-
-                target.draw(m_TurnTimeText);
-                //target.draw(m_EndGameText);
+                else if (Gameplay::GameManager::GetInstance()->IsGameOver())
+                {
+                    target.draw(m_EndGameText);
+                }
+                else
+                {
+                    target.draw(m_TurnTimeText);
+                }
             }
         }
 

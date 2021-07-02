@@ -27,7 +27,7 @@ namespace BatNav
             void Update(float deltaTime) override;
             void Render(sf::RenderTarget& target) override;
 
-            //inline const bool IsGameOver() const { return m_CurrentState == GameState::OVER; }
+            inline const bool IsGameOver() const { return m_CurrentState == GameState::OVER; }
             inline const bool IsPlacingBoats() const { return m_CurrentState == GameState::PLACING_BOATS; }
 
         private:
