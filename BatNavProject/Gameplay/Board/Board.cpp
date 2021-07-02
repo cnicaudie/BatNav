@@ -135,7 +135,7 @@ namespace BatNav
         void Board::UpdateTileOnBoard(const int tileIndex, const bool isSelected)
         {
             // Retrieve the coordinates
-            int i = tileIndex % static_cast<int>(BOARD_SIZE.y);
+            int i = tileIndex % static_cast<int>(BOARD_SIZE.x);
             int j = tileIndex / static_cast<int>(BOARD_SIZE.y);
 
             // Retrieve the tile number
@@ -158,7 +158,6 @@ namespace BatNav
                 case TileType::MISSED:
                     return 1;
 
-                // TODO : Temporary representation (have a sprite in the Boat class)
                 case TileType::BOAT:
                     return m_DisplayBoats ? 3 : 0;
 
@@ -385,7 +384,7 @@ namespace BatNav
             boat->Unplace();
 
             // Select it for placement
-            m_SelectedBoatIndex = boat - m_Boats.begin();
+            m_SelectedBoatIndex = static_cast<int>(boat - m_Boats.begin());
         }
 
         void Board::PlaceAllBoatsRandom(const bool autoConfirmation)
@@ -401,7 +400,7 @@ namespace BatNav
                     m_SelectedBoatIndex = i;
 
                     Boat& boat = m_Boats[m_SelectedBoatIndex];
-                    int xPosition, yPosition;
+                    float xPosition, yPosition;
 
                     // Find a valid position randomly
                     do
@@ -419,7 +418,7 @@ namespace BatNav
                             yPosition = Engine::Maths::GetRandomFloat(0.f, static_cast<float>(BOARD_SIZE.y));
                         }
 
-                        m_SelectedTileIndex = xPosition * yPosition;
+                        m_SelectedTileIndex = static_cast<int>(xPosition * yPosition);
 
                         CheckBoatPlacement(boat);
 

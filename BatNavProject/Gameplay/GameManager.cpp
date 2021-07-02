@@ -127,8 +127,6 @@ namespace BatNav
 
         void GameManager::SwitchTurns(Board& currentBoard)
         {
-            LOG_DEBUG("Switching current board");
-
             currentBoard.ResetCurrent();
             currentBoard.ResetAttack();
 
@@ -137,6 +135,7 @@ namespace BatNav
             auto currentBoardIndex = GetCurrentBoardIndex();
             m_Players[currentBoardIndex].GetBoard().SetToCurrent();
 
+            LOG_INFO("Player " << m_CurrentPlayerIndex << " turns !");
             m_TurnTimer.restart();
         }
 
@@ -144,7 +143,7 @@ namespace BatNav
         {
             if (currentBoard.WasAttacked())
             {
-                LOG_INFO("Attack detected!");
+                LOG_INFO("Attack detected !");
 
                 m_CurrentState = GameState::SWITCHING_TURNS;
                 m_TurnTimer.restart();
@@ -193,6 +192,7 @@ namespace BatNav
             else if (evnt->GetEventType() == Engine::EventType::START_GAME)
             {
                 LOG_INFO("GAME STARTED !!!");
+                LOG_INFO("Player " << m_CurrentPlayerIndex << " turns !");
                 m_CurrentState = GameState::PLACING_BOATS;
             }
             else if (evnt->GetEventType() == Engine::EventType::END_GAME)
