@@ -92,12 +92,16 @@ namespace BatNav
 
         void Board::draw(sf::RenderTarget& target, sf::RenderStates states) const
         {
-            // Draw the background map
+            // Draw boats
+            for (auto boat : m_Boats)
+            {
+                target.draw(boat);
+            }
+
+            // Draw the board
             states.transform *= getTransform(); // Apply the transform
             states.texture = &m_TileSet; // Apply the tileset texture
             target.draw(m_Vertices, states); // Draw the vertex array
-
-            // TODO : draw boats here (don't draw if not player)
         }
 
         // ========== BOARD LOADING / UPDATE
@@ -276,18 +280,23 @@ namespace BatNav
         {
             m_Boats[0].SetName("Porte-Avion");
             m_Boats[0].SetSize(5);
+            m_Boats[0].InitSprite(TILE_SIZE);
 
             m_Boats[1].SetName("Croiseur");
             m_Boats[1].SetSize(4);
+            m_Boats[1].InitSprite(TILE_SIZE);
 
             m_Boats[2].SetName("Contre-Torpilleur");
             m_Boats[2].SetSize(3);
+            m_Boats[2].InitSprite(TILE_SIZE);
 
             m_Boats[3].SetName("Contre-Torpilleur");
             m_Boats[3].SetSize(3);
+            m_Boats[3].InitSprite(TILE_SIZE);
 
             m_Boats[4].SetName("Torpilleur");
             m_Boats[4].SetSize(2);
+            m_Boats[4].InitSprite(TILE_SIZE);
         }
 
         void Board::SelectBoatToPlace()
@@ -341,9 +350,11 @@ namespace BatNav
                     UpdateTileOnBoard(tileIndex);
                 }
 
+                boat.SetPosition({
+                static_cast<float>((m_SelectedTileIndex % BOARD_SIZE.x) * TILE_SIZE.x),
+                static_cast<float>((m_SelectedTileIndex / BOARD_SIZE.y) * TILE_SIZE.y),
+                });
                 boat.SetPositionIndex(m_SelectedTileIndex);
-                LOG_DEBUG("Placed boat of type " << boat.GetName() << " at index " << boat.GetPositionIndex());
-
                 boat.Place();
             }
         }
